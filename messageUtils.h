@@ -1,0 +1,26 @@
+/*
+ * messageUtils.h
+ *
+ *  Created on: 25 de jul de 2018
+ *      Author: vitor
+ */
+
+#ifndef MESSAGEUTILS_H_
+#define MESSAGEUTILS_H_
+
+#include "utils.h"
+#include "constants.h"
+
+void buildHelloMassage(char *id, char *password, char *message);
+
+void buildKeepAliveMessage(char *token, char *message);
+
+void buildMessagePublish(char *topic, char *token, float value, int isIntValue, char *message);
+
+int getMessageType(char *message);
+
+void proccessDataMessage(char *message, char *topic, float *value);
+
+void proccessRuleMessage(char *message);
+
+#endif /* MESSAGEUTILS_H_ */
