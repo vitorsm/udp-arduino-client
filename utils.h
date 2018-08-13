@@ -39,4 +39,6 @@ int compareBytes(char *value1, char *value2, int size);
 
 void subvectorBytes(char *vector, int starts, int end, char *result);
 
+void concatString(char *str1, char *str2, char *result);
+
 #endif /* UTILS_H_ */

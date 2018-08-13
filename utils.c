@@ -272,3 +272,17 @@ void subvectorBytes(char *vector, int starts, int end, char *result) {
 		result[i - starts] = vector[i];
 	}
 }
+
+void concatString(char *str1, char *str2, char *result) {
+
+	int size1 = strlen(str1);
+	int size2 = strlen(str2);
+
+	for (int i = 0; i < size1; i++) {
+		result[i] = str1[i];
+	}
+
+	for (int i = 0; i < size2; i++) {
+		result[i + size1] = str2[i];
+	}
+}

@@ -8,22 +8,73 @@
 #include "espUtils.h"
 
 
-void moduleReset(sendDataFunc *func) {
+void moduleReset(sendDataFunc *sendData) {
+  int result = 0;
+
+  while (result == 0) {
+    result = sendData("AT+RST", DEFAULT_TIMEOUT * 2, DEBUG);
+  }
   
 }
 
-int connectToWifi(sendDataFunc *func, char *ssid, char *password);
+int connectToWifi(sendDataFunc *sendData, char *ssid, char *password) {
+  char *part1 = "AT+CWJAP=\"";
+  char *part2 = "\",\"";
+  char *part3 = "\"";
 
-int setStationMode(sendDataFunc *func);
+  int charSize = strlen(part1) + strlen(part2) + strlen(part3) + strlen(ssid) + strlen(password) + 1;
+  char command[charSize];
+  for (int i = 0; i < charSize; i++) {
+    command[i] = 0;
+  }
 
-void showLocalIpAddress(sendDataFunc *func);
+  concatString(part1, ssid, command);
+  concatString(command, part2, command);
+  concatString(command, password, command);
+  concatString(command, part3, command);
+  command[charSize] = 0;
+  
+  //sendData("AT+CWJAP=\"2.4Ghz Virtua 302\",\"3207473600\"", DEFAULT_TIMEOUT * 2, DEBUG);
+  sendData(command, DEFAULT_TIMEOUT * 2, DEBUG);
+}
 
-int voidMultipleConnections(sendDataFunc *func);
+int setStationMode(sendDataFunc *sendData) {
+  sendData("AT+CWMODE=1", DEFAULT_TIMEOUT, DEBUG);
+}
 
-int enableShowRemoteIp(sendDataFunc *func);
+void showLocalIpAddress(sendDataFunc *sendData) {
+  sendData("AT+CIFSR", DEFAULT_TIMEOUT, DEBUG);
+}
 
-int startServer(sendDataFunc *func);
+int setMultipleConnections(sendDataFunc *sendData) {
+  sendData("AT+CIPMUX=1", DEFAULT_TIMEOUT, DEBUG);
+}
 
-int sendHelloMessage(sendDataFunc *func);
+int enableShowRemoteIp(sendDataFunc *sendData) {
+  sendData("AT+CIPDINFO=1", DEFAULT_TIMEOUT, DEBUG);
+}
 
-void sendMessage(sendDataFunc *func, char *message, char *ipAddress, int port);
+int startServer(sendDataFunc *sendData) {
+
+  char clientPortStr[] = {0, 0, 0, 0, 0, 0, 0, 0};
+  convertIntToBytes(CLIENT_PORT, clientPortStr, 7);
+  
+  char *part1 = "AT+CIPSTART=0,\"UDP\",\"0.0.0.0\",0,";
+  char *part2 = ",2";
+
+  int charSize = strlen(part1) + strlen(part2) + strlen(clientPortStr);
+  
+  char charCommand[charSize + 1];
+  
+  concatString(part1, clientPortStr, charCommand);  
+  concatString(charCommand, part2, charCommand);
+  charCommand[charSize] = 0;
+  
+  sendData(charCommand, DEFAULT_TIMEOUT, DEBUG);
+}
+
+int sendHelloMessage(sendDataFunc *sendData) {
+  
+}
+
+void sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port);

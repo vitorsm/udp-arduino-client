@@ -8,24 +8,31 @@
 #ifndef ESPUTILS_H_
 #define ESPUTILS_H_
 
+#define DEFAULT_TIMEOUT 1000
+#define MAX_ATTEMPTS 10
+#define DEBUG 1
+
+#include "utils.h"
+#include "constants.h"
+
 typedef int (sendDataFunc)(char *command, const int timeout, int debug);
 
-void moduleReset(sendDataFunc *func);
+void moduleReset(sendDataFunc *sendData);
 
-int connectToWifi(sendDataFunc *func, char *ssid, char *password);
+int connectToWifi(sendDataFunc *sendData, char *ssid, char *password);
 
-int setStationMode(sendDataFunc *func);
+int setStationMode(sendDataFunc *sendData);
 
-void showLocalIpAddress(sendDataFunc *func);
+void showLocalIpAddress(sendDataFunc *sendData);
 
-int voidMultipleConnections(sendDataFunc *func);
+int setMultipleConnections(sendDataFunc *sendData);
 
-int enableShowRemoteIp(sendDataFunc *func);
+int enableShowRemoteIp(sendDataFunc *sendData);
 
-int startServer(sendDataFunc *func);
+int startServer(sendDataFunc *sendData);
 
-int sendHelloMessage(sendDataFunc *func);
+int sendHelloMessage(sendDataFunc *sendData);
 
-void sendMessage(sendDataFunc *func, char *message, char *ipAddress, int port);
+void sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port);
 
 #endif /* ESPUTILS_H_ */

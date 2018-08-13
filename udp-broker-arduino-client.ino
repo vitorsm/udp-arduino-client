@@ -2,6 +2,7 @@
 #include "messageUtils.c"
 #include "utils.c"
 #include <SoftwareSerial.h>
+#include "espUtils.c"
 
 #define DEBUG 1
 
@@ -19,26 +20,28 @@ void setup() {
 
   Serial.begin(9600);
   esp8266.begin(19200);
-  // reseta o modulo
-  sendData("AT+RST", 2000, DEBUG); // rst
-  // Conecta a rede wireless
-  sendData("AT+CWJAP=\"2.4Ghz Virtua 302\",\"3207473600\"", 2000, DEBUG);
-  delay(6000);
-  sendData("AT+CWMODE=1", 1000, DEBUG);
-  delay(1000);
-  // Mostra o endereco IP
-  sendData("AT+CIFSR", 1000, DEBUG);
-  // Configura para multiplas conexoes
-  sendData("AT+CIPMUX=1", 1000, DEBUG);
-  //shows the remote IP and port with +IPD.
-  sendData("AT+CIPDINFO=1", 1000, DEBUG);
   
-  startServer();
-  for (int i = 0; i < 30; i++) {
+  moduleReset(sendData);
+  connectToWifi(sendData, "2.4Ghz Virtua 302", "3207473600");
+  
+  for (int i = 0; i < 60; i++) {
     delay(100);  
     Serial.print(".");
   }
   Serial.println(".");
+  
+  setStationMode(sendData);
+  
+  for (int i = 0; i < 10; i++) {
+    delay(100);  
+    Serial.print(".");
+  }
+  Serial.println(".");
+  
+  setMultipleConnections(sendData);
+  enableShowRemoteIp(sendData);
+  
+  startServer(sendData);
   
   Serial.println("Terminou setup");
 }
@@ -180,10 +183,11 @@ void sendMessage(char *message, String ipAddress, int port) {
   cipSend += "\",";
   cipSend += port;
 
-  Serial.println("vai mandar essa comando: " + cipSend);
-  sendData(cipSend, 1000, DEBUG);
-  Serial.print("vai mandar essa comando: ");
-  Serial.println(message);
+  char charCipSend[cipSend.length() + 1];
+  
+  convertStringToChar(cipSend, charCipSend);
+  
+  sendData(charCipSend, 1000, DEBUG);
   
   char preparedMessage[MESSAGE_LENGTH + 1];
   prepareMessage(message, preparedMessage);
@@ -195,16 +199,6 @@ void sendMessage(char *message, String ipAddress, int port) {
   closeCommand += connectionId;
 
   //sendData(closeCommand, 3000, DEBUG);
-}
-
-void startServer() {
-
-  String command = "AT+CIPSTART=0,\"UDP\",\"0.0.0.0\",0,";
-  command += CLIENT_PORT;
-  command += ',';
-  command += '2';
-
-  sendData(command, 1000, DEBUG);
 }
 
 int sendData(char *command, const int timeout, int debug) {
