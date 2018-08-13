@@ -10,7 +10,7 @@
 void buildHelloMassage(char *id, char *password, char *message) {
 
 	for (int i = 0; i < MESSAGE_LENGTH; i++) {
-		message[i] = 0;
+		message[i] = EMPTY_CHAR;
 	}
 
 	//build header
@@ -34,7 +34,7 @@ void buildHelloMassage(char *id, char *password, char *message) {
 void buildKeepAliveMessage(char *token, char *message) {
 
 	for (int i = 0; i < MESSAGE_LENGTH; i++) {
-		message[i] = 0;
+		message[i] = EMPTY_CHAR;
 	}
 
 	//build header
@@ -51,7 +51,7 @@ void buildKeepAliveMessage(char *token, char *message) {
 void buildMessagePublish(char *topic, char *token, float value, int isIntValue, char *message) {
 
 	for (int i = 0; i < MESSAGE_LENGTH; i++) {
-		message[i] = 0;
+		message[i] = EMPTY_CHAR;
 	}
 
 	//build header
@@ -74,8 +74,9 @@ void buildMessagePublish(char *topic, char *token, float value, int isIntValue, 
 	if (isIntValue == 0) {
 		convertFloatToBytes(value, contentValue, MESSAGE_BODY_CONTENT_LENGTH);
 	} else {
-		convertIntToBytes(value, contentValue,  MESSAGE_BODY_CONTENT_LENGTH);
+		convertIntToBytes(value, contentValue, MESSAGE_BODY_CONTENT_LENGTH);
 	}
+
 
 	for (int i = 0; i < MESSAGE_BODY_CONTENT_LENGTH; i++) {
 		if (contentValue[i] == 0) break;
@@ -99,11 +100,19 @@ void proccessDataMessage(char *message, char *topic, float *value) {
 
 	subvectorBytes(message, 1, 1 + MESSAGE_TOKEN_LENGTH, receivedToken);
 	subvectorBytes(message, MESSAGE_HEADER_LENGTH, MESSAGE_HEADER_LENGTH + MESSAGE_TOPIC_LENGTH, receivedTopic);
-	subvectorBytes(message, MESSAGE_HEADER_LENGTH + MESSAGE_TOPIC_LENGTH, MESSAGE_BODY_LENGTH, receivedValue);
+	subvectorBytes(message, MESSAGE_HEADER_LENGTH + MESSAGE_TOPIC_LENGTH, MESSAGE_LENGTH, receivedValue);
 
 	for (int i = 0; i < MESSAGE_TOPIC_LENGTH; i++) {
-		topic[i] = receivedTopic[i];
+		if (receivedTopic[i] == EMPTY_CHAR) {
+			topic[i] = 0;
+		} else {
+			topic[i] = receivedTopic[i];
+		}
 	}
+
+	//remove empty char
+	removeEmptyChar(receivedToken, MESSAGE_TOKEN_LENGTH);
+	removeEmptyChar(receivedValue, MESSAGE_BODY_CONTENT_LENGTH);
 
 	float floatValue = convertBytesToFloat(receivedValue);
 	*value = floatValue;
@@ -111,4 +120,20 @@ void proccessDataMessage(char *message, char *topic, float *value) {
 
 void proccessRuleMessage(char *message) {
 
+}
+
+void addEmptyChar(char *str, int size) {
+	for (int i = 0; i < size; i++) {
+		if (str[i] == 0) {
+			str[i] = EMPTY_CHAR;
+		}
+	}
+}
+
+void removeEmptyChar(char *str, int size) {
+	for (int i = 0; i < size; i++) {
+		if (str[i] == EMPTY_CHAR) {
+			str[i] = 0;
+		}
+	}
 }

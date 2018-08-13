@@ -23,4 +23,6 @@ void proccessDataMessage(char *message, char *topic, float *value);
 
 void proccessRuleMessage(char *message);
 
+void removeEmptyChar(char *str, int size);
+
 #endif /* MESSAGEUTILS_H_ */
