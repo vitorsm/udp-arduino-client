@@ -15,6 +15,9 @@
 #include "utils.h"
 #include "constants.h"
 
+char assetId[MESSAGE_ID_LENGTH];
+char password[MESSAGE_PASSWORD_LENGTH];
+
 typedef int (sendDataFunc)(char *command, const int timeout, int debug);
 
 void moduleReset(sendDataFunc *sendData);
@@ -31,8 +34,15 @@ int enableShowRemoteIp(sendDataFunc *sendData);
 
 int startServer(sendDataFunc *sendData);
 
+void getNetworkAddress(char *address);
+
+
+//Criar um arquivo para tratar de conversas com a rede de nos
+
 int sendHelloMessage(sendDataFunc *sendData);
 
 void sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port);
+
+void setCredentials(char *assetId, char *password);
 
 #endif /* ESPUTILS_H_ */

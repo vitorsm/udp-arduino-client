@@ -6,9 +6,6 @@
 
 #define DEBUG 1
 
-char *assetId = "TEST_ID";
-char *password = "pass";
-
 String brokerIpAddress = "";
 
 int connectionId = 0;
@@ -62,23 +59,11 @@ void loop() {
   
   if (brokerIpAddress == "") {
     if (millis() - lastRequestBroker >= TIME_REQUEST_HELLO) {
-      sendHelloMessage();
+      sendHelloMessage(sendData);
       lastRequestBroker = millis();
     }
   }
   
-}
-
-/***
- * Send messages
- */
-
-void sendHelloMessage() {
-
-  char message[MESSAGE_LENGTH];
-  buildHelloMassage(assetId, password, message);
-
-  sendMessage(message, "192.168.0.255", SERVER_PORT);
 }
 
 void proccessReceivedData(String data) {
@@ -233,31 +218,6 @@ int sendData(char *command, const int timeout, int debug) {
   
 }
 
-//String sendData(String command, const int timeout, boolean debug) {
-//
-//  String response = "";
-//  esp8266.print(command + "\r\n");
-//
-//  int ok = 0;
-//  long int time = millis();
-//  while ( (time + timeout) > millis()) {
-//
-//    while (esp8266.available()) {
-//      char c = esp8266.read(); // read the next character.
-//      response += c;
-//      ok = 1;
-//    }
-//
-//    //if (ok == 1) break;
-//
-//  }
-//
-//  if (debug) {
-//    Serial.print(response);
-//  }
-//
-//  return response;
-//}
 
 int getStartsMessage(String message) {
 

@@ -74,7 +74,37 @@ int startServer(sendDataFunc *sendData) {
 }
 
 int sendHelloMessage(sendDataFunc *sendData) {
+
+  char address[15];
+  getNetworkAddress(address);
+
+  
+  char message[MESSAGE_LENGTH];
+  buildHelloMassage(assetId, password, message);
+
+  sendMessage(sendData, message, address, SERVER_PORT);
   
 }
 
-void sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port);
+void sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port) {
+  
+}
+
+void getNetworkAddress(char *address) {
+  address = "192.168.0.255";
+}
+
+void setCredentials(char *_assetId, char *_password) {
+  int i = 0;
+  char c = _assetId[i];
+  while (c != 0) {
+    assetId[i] = _assetId[0];
+  }
+
+  i = 0;
+  c = _password[i];
+  while (c != 0) {
+    password[i] = _password[i];
+  }
+}
+
