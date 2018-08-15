@@ -8,17 +8,19 @@
 #ifndef BROKERCOMM_H_
 #define BROKERCOMM_H_
 
-typedef int (sendDataFunc)(char *command, const int timeout, int debug);
+#include "espUtils.h"
 
-void startAccessPoint(sendDataFunc *sendData);
-void stopAccessPoint(sendDataFunc *sendData);
+const char *ssid = "Nome rede";
 
-void startPageServer(sendDataFunc *sendData);
+void startAccessPointConfig();
+void stopAccessPointConfig();
 
-void proccessRequest(sendDataFunc *sendData);
-void proccessPost(sendDataFunc *sendData);
+void startPageServer();
 
-void proccessWifiConfig(sendDataFunc *sendData);
-void proccessCredentialsConfig(sendDataFunc *sendData);
+void proccessRequest();
+void proccessPost();
+
+void proccessWifiConfig();
+void proccessCredentialsConfig();
 
 #endif /* BROKERCOMM_H_ */

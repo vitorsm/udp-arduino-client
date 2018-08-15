@@ -18,7 +18,10 @@
 char assetId[MESSAGE_ID_LENGTH];
 char password[MESSAGE_PASSWORD_LENGTH];
 
-typedef int (sendDataFunc)(char *command, const int timeout, int debug);
+const char *channelAP = "1";
+const char *encryptionModeAP = "0"; // 0: OPEN, 2: WPA_PSK, 3: WPA2_PSK, WPA_WPA2_PSK
+
+typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 
 void moduleReset(sendDataFunc *sendData);
 
@@ -36,6 +39,9 @@ int startServer(sendDataFunc *sendData);
 
 void getNetworkAddress(char *address);
 
+int startAccessPoint(char *ssid);
+
+int stopAccessPoint();
 
 //Criar um arquivo para tratar de conversas com a rede de nos
 

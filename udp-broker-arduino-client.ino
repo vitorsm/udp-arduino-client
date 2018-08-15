@@ -186,36 +186,45 @@ void sendMessage(char *message, String ipAddress, int port) {
   //sendData(closeCommand, 3000, DEBUG);
 }
 
-int sendData(char *command, const int timeout, int debug) {
+int sendData(char *command, const int timeout, int debug, int maxAttempts) {
+
+  int okCommand = 0;
+  int maxAttempts = 0;
+
+  String response;
+  while (okCommand == 0 && attempts <= maxAttempts) {
+    maxAttempts++;
+
+    response = "";
+
+    esp8266.print(command);
+    esp8266.print("\r\n");
   
-  String response = "";
-  esp8266.print(command);
-  esp8266.print("\r\n");
+    int ok = 0;
+    long int time = millis();
+    while ( (time + timeout) > millis()) {
+  
+      while (esp8266.available()) {
+        char c = esp8266.read(); // read the next character.
+        response += c;
+        ok = 1;
+      }
+  
+      if (ok == 1) break;
 
-  int ok = 0;
-  long int time = millis();
-  while ( (time + timeout) > millis()) {
-
-    while (esp8266.available()) {
-      char c = esp8266.read(); // read the next character.
-      response += c;
-      ok = 1;
+        if (debug) {
+          Serial.print(response);
+        }
+      
+        if (response.indexOf("OK") > 0) {
+          okCommand = 1;
+        } else {
+          okCommand = 0;
+        }
     }
-
-    if (ok == 1) break;
-
-  }
-
-  if (debug) {
-    Serial.print(response);
-  }
-
-  if (response.indexOf("OK") > 0) {
-    return 1;
-  } else {
-    return 0;
   }
   
+  return okCommand;
 }
 
 

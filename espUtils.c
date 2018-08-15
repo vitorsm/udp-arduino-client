@@ -11,8 +11,10 @@
 void moduleReset(sendDataFunc *sendData) {
   int result = 0;
 
-  while (result == 0) {
-    result = sendData("AT+RST", DEFAULT_TIMEOUT * 2, DEBUG);
+  int attempts = 0;
+  while (result == 0 && attempts <= MAXIMUM_ATTEMPTS) {
+    result = sendData("AT+RST", DEFAULT_TIMEOUT * 2, DEBUG, MAXIMUM_ATTEMPTS);
+    attempts++;
   }
   
 }
@@ -35,23 +37,23 @@ int connectToWifi(sendDataFunc *sendData, char *ssid, char *password) {
   command[charSize] = 0;
   
   //sendData("AT+CWJAP=\"2.4Ghz Virtua 302\",\"3207473600\"", DEFAULT_TIMEOUT * 2, DEBUG);
-  sendData(command, DEFAULT_TIMEOUT * 2, DEBUG);
+  sendData(command, DEFAULT_TIMEOUT * 2, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 int setStationMode(sendDataFunc *sendData) {
-  sendData("AT+CWMODE=1", DEFAULT_TIMEOUT, DEBUG);
+  sendData("AT+CWMODE=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 void showLocalIpAddress(sendDataFunc *sendData) {
-  sendData("AT+CIFSR", DEFAULT_TIMEOUT, DEBUG);
+  sendData("AT+CIFSR", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 int setMultipleConnections(sendDataFunc *sendData) {
-  sendData("AT+CIPMUX=1", DEFAULT_TIMEOUT, DEBUG);
+  sendData("AT+CIPMUX=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 int enableShowRemoteIp(sendDataFunc *sendData) {
-  sendData("AT+CIPDINFO=1", DEFAULT_TIMEOUT, DEBUG);
+  sendData("AT+CIPDINFO=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 int startServer(sendDataFunc *sendData) {
@@ -70,7 +72,28 @@ int startServer(sendDataFunc *sendData) {
   concatString(charCommand, part2, charCommand);
   charCommand[charSize] = 0;
   
-  sendData(charCommand, DEFAULT_TIMEOUT, DEBUG);
+  sendData(charCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+}
+
+int startAccessPoint(char *ssid) {
+
+    char *par1 = "AT+CWSAP_CUR=\"";
+    char *part2 = "\",\"\",";
+    char *part3 = "\",";
+
+    int charSize = strlen(part1) + strlen(part2) + strlen(part3) + strlen(part4) + strlen(ssid) + strlen(channelAP) + strlen(encryptionModeAP);
+    
+    char strCommand[charSize];
+
+    concatString(part1, ssid, strCommand);
+    concatString(strCommand, part2, strCommand);
+    concatString(strCommand, channelAP, strCommand);
+    concatString(strCommand, part3, strCommand);
+    concatString(strCommand, encryptionModeAP, strCommand);
+    
+    sendData(strCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+    //analisar se precisa de um delay
+    sendData("AT+CWMODE_CUR=2", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 int sendHelloMessage(sendDataFunc *sendData) {
@@ -82,7 +105,7 @@ int sendHelloMessage(sendDataFunc *sendData) {
   char message[MESSAGE_LENGTH];
   buildHelloMassage(assetId, password, message);
 
-  sendMessage(sendData, message, address, SERVER_PORT);
+  sendMessage(sendData, message, address, SERVER_PORT, MAXIMUM_ATTEMPTS);
   
 }
 

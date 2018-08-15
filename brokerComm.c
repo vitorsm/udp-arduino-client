@@ -7,16 +7,20 @@
 
 #include "brokerComm.h"
 
-void startAccessPoint(sendDataFunc *sendData) {
+void startAccessPointConfig() {
+
+  startAccessPoint(ssid);
   
 }
 
-void stopAccessPoint(sendDataFunc *sendData);
+void stopAccessPointConfig() {
+  
+}
 
-void startPageServer(sendDataFunc *sendData);
+void startPageServer();
 
-void proccessRequest(sendDataFunc *sendData);
-void proccessPost(sendDataFunc *sendData);
+void proccessRequest();
+void proccessPost();
 
-void proccessWifiConfig(sendDataFunc *sendData);
-void proccessCredentialsConfig(sendDataFunc *sendData);
+void proccessWifiConfig();
+void proccessCredentialsConfig();
