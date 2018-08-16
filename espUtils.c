@@ -9,13 +9,8 @@
 
 
 void moduleReset(sendDataFunc *sendData) {
-  int result = 0;
-
-  int attempts = 0;
-  while (result == 0 && attempts <= MAXIMUM_ATTEMPTS) {
-    result = sendData("AT+RST", DEFAULT_TIMEOUT * 2, DEBUG, MAXIMUM_ATTEMPTS);
-    attempts++;
-  }
+  
+  sendData("AT+RST", DEFAULT_TIMEOUT * 2, DEBUG, MAXIMUM_ATTEMPTS);
   
 }
 
@@ -37,23 +32,23 @@ int connectToWifi(sendDataFunc *sendData, char *ssid, char *password) {
   command[charSize] = 0;
   
   //sendData("AT+CWJAP=\"2.4Ghz Virtua 302\",\"3207473600\"", DEFAULT_TIMEOUT * 2, DEBUG);
-  sendData(command, DEFAULT_TIMEOUT * 2, DEBUG, MAXIMUM_ATTEMPTS);
+  return sendData(command, DEFAULT_TIMEOUT * 2, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 int setStationMode(sendDataFunc *sendData) {
-  sendData("AT+CWMODE=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  return sendData("AT+CWMODE=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 void showLocalIpAddress(sendDataFunc *sendData) {
-  sendData("AT+CIFSR", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  return sendData("AT+CIFSR", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 int setMultipleConnections(sendDataFunc *sendData) {
-  sendData("AT+CIPMUX=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  return sendData("AT+CIPMUX=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 int enableShowRemoteIp(sendDataFunc *sendData) {
-  sendData("AT+CIPDINFO=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  return sendData("AT+CIPDINFO=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 int startServer(sendDataFunc *sendData) {
@@ -64,7 +59,7 @@ int startServer(sendDataFunc *sendData) {
   char *part1 = "AT+CIPSTART=0,\"UDP\",\"0.0.0.0\",0,";
   char *part2 = ",2";
 
-  int charSize = strlen(part1) + strlen(part2) + strlen(clientPortStr);
+  int charSize = strlen(part1) + strlen(part2) + strlen(clientPortStr) + 1;
   
   char charCommand[charSize + 1];
   
@@ -72,16 +67,22 @@ int startServer(sendDataFunc *sendData) {
   concatString(charCommand, part2, charCommand);
   charCommand[charSize] = 0;
   
-  sendData(charCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  return sendData(charCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
-int startAccessPoint(char *ssid) {
+int startAccessPoint(sendDataFunc *sendData, char *ssid) {
 
-    char *par1 = "AT+CWSAP_CUR=\"";
+    char *part1 = "AT+CWSAP_CUR=\"";
     char *part2 = "\",\"\",";
     char *part3 = "\",";
 
-    int charSize = strlen(part1) + strlen(part2) + strlen(part3) + strlen(part4) + strlen(ssid) + strlen(channelAP) + strlen(encryptionModeAP);
+    char channelAP[2];
+    char encryptionModeAP[2];
+
+    convertIntToBytes(CHANNEL_AP, channelAP, 1);
+    convertIntToBytes(ENCRYPTATION_MODE_AP, encryptionModeAP, 1);
+    
+    int charSize = strlen(part1) + strlen(part2) + strlen(part3) + strlen(ssid) + strlen(channelAP) + strlen(encryptionModeAP) + 1;
     
     char strCommand[charSize];
 
@@ -91,21 +92,66 @@ int startAccessPoint(char *ssid) {
     concatString(strCommand, part3, strCommand);
     concatString(strCommand, encryptionModeAP, strCommand);
     
-    sendData(strCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+    int resp = sendData(strCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
     //analisar se precisa de um delay
-    sendData("AT+CWMODE_CUR=2", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+    if (resp == 1)
+      resp = sendData("AT+CWMODE_CUR=2", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+
+    return resp;
+}
+
+
+int stopAccessPoint(sendDataFunc *sendData) {
+  
+  return sendData("AT+CWMODE_CUR=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  
+}
+
+
+int startTCPServer(sendDataFunc *sendData, int port) {
+  char *part1 = "AT+CIPSERVER=1,";
+
+  int sizeStrPort = 7;
+  char portStr[sizeStrPort];
+  convertIntToBytes(port, portStr, sizeStrPort);
+
+  int commandSize = strlen(part1) + strlen(portStr) + 1;
+  char strCommand[commandSize];
+  concatString(part1, portStr, strCommand);
+
+  return sendData(strCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+}
+
+int stopTCPServer(sendDataFunc *sendData, int port) {
+  char *part1 = "AT+CIPSERVER=0,";
+
+  int sizeStrPort = 7;
+  char portStr[sizeStrPort];
+  convertIntToBytes(port, portStr, sizeStrPort);
+
+  int commandSize = strlen(part1) + strlen(portStr) + 1;
+  char strCommand[commandSize];
+  concatString(part1, portStr, strCommand);
+
+  return sendData(strCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+}
+
+int listAPs(sendDataFunc *sendData) {
+  
+  return sendData("AT+CWLAP", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  
 }
 
 int sendHelloMessage(sendDataFunc *sendData) {
 
   char address[15];
-  getNetworkAddress(address);
+  getNetworkAddress(sendData, address);
 
   
   char message[MESSAGE_LENGTH];
   buildHelloMassage(assetId, password, message);
 
-  sendMessage(sendData, message, address, SERVER_PORT, MAXIMUM_ATTEMPTS);
+  sendMessage(sendData, message, address, SERVER_PORT);
   
 }
 
@@ -113,7 +159,7 @@ void sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int por
   
 }
 
-void getNetworkAddress(char *address) {
+void getNetworkAddress(sendDataFunc *sendData, char *address) {
   address = "192.168.0.255";
 }
 

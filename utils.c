@@ -285,4 +285,6 @@ void concatString(char *str1, char *str2, char *result) {
 	for (int i = 0; i < size2; i++) {
 		result[i + size1] = str2[i];
 	}
+
+  result[size1 + size2] = 0;
 }

@@ -12,14 +12,14 @@
 #define MAX_ATTEMPTS 10
 #define DEBUG 1
 
+#define CHANNEL_AP 1
+#define ENCRYPTATION_MODE_AP 0 // 0: OPEN, 2: WPA_PSK, 3: WPA2_PSK, WPA_WPA2_PSK
+
 #include "utils.h"
 #include "constants.h"
 
 char assetId[MESSAGE_ID_LENGTH];
 char password[MESSAGE_PASSWORD_LENGTH];
-
-const char *channelAP = "1";
-const char *encryptionModeAP = "0"; // 0: OPEN, 2: WPA_PSK, 3: WPA2_PSK, WPA_WPA2_PSK
 
 typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 
@@ -37,11 +37,17 @@ int enableShowRemoteIp(sendDataFunc *sendData);
 
 int startServer(sendDataFunc *sendData);
 
-void getNetworkAddress(char *address);
+void getNetworkAddress(sendDataFunc *sendData, char *address);
 
-int startAccessPoint(char *ssid);
+int startAccessPoint(sendDataFunc *sendData, char *ssid);
 
-int stopAccessPoint();
+int stopAccessPoint(sendDataFunc *sendData);
+
+int startTCPServer(sendDataFunc *sendData, int port);
+
+int stopTCPServer(sendDataFunc *sendData, int port);
+
+int listAPs(sendDataFunc *sendData);
 
 //Criar um arquivo para tratar de conversas com a rede de nos
 

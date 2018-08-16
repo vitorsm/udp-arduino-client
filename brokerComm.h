@@ -8,19 +8,5 @@
 #ifndef BROKERCOMM_H_
 #define BROKERCOMM_H_
 
-#include "espUtils.h"
-
-const char *ssid = "Nome rede";
-
-void startAccessPointConfig();
-void stopAccessPointConfig();
-
-void startPageServer();
-
-void proccessRequest();
-void proccessPost();
-
-void proccessWifiConfig();
-void proccessCredentialsConfig();
 
 #endif /* BROKERCOMM_H_ */

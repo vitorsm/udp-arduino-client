@@ -3,6 +3,7 @@
 #include "utils.c"
 #include <SoftwareSerial.h>
 #include "espUtils.c"
+#include "accessPoint.c"
 
 #define DEBUG 1
 
@@ -19,7 +20,7 @@ void setup() {
   esp8266.begin(19200);
   
   moduleReset(sendData);
-  connectToWifi(sendData, "2.4Ghz Virtua 302", "3207473600");
+  //connectToWifi(sendData, "2.4Ghz Virtua 302", "3207473600");
   
   for (int i = 0; i < 60; i++) {
     delay(100);  
@@ -27,7 +28,7 @@ void setup() {
   }
   Serial.println(".");
   
-  setStationMode(sendData);
+  //setStationMode(sendData);
   
   for (int i = 0; i < 10; i++) {
     delay(100);  
@@ -35,13 +36,15 @@ void setup() {
   }
   Serial.println(".");
   
-  setMultipleConnections(sendData);
-  enableShowRemoteIp(sendData);
+  //setMultipleConnections(sendData);
+  //enableShowRemoteIp(sendData);
   
-  startServer(sendData);
-  
+  //startServer(sendData);
+
   Serial.println("Terminou setup");
 }
+
+int was = 0;
 
 void loop() {
  
@@ -56,13 +59,17 @@ void loop() {
     proccessReceivedData(message);
     
   }
-  
-  if (brokerIpAddress == "") {
-    if (millis() - lastRequestBroker >= TIME_REQUEST_HELLO) {
-      sendHelloMessage(sendData);
-      lastRequestBroker = millis();
-    }
+
+  if (was == 0) {
+    was = 1;
+    listAPs(sendData);
   }
+//  if (brokerIpAddress == "") {
+//    if (millis() - lastRequestBroker >= TIME_REQUEST_HELLO) {
+//      sendHelloMessage(sendData);
+//      lastRequestBroker = millis();
+//    }
+//  }
   
 }
 
@@ -70,11 +77,20 @@ void proccessReceivedData(String data) {
   
   String type = data.substring(2, 6);
   
-  if (DEBUG) {
+  if (DEBUG == 1) {
     Serial.println("type: " + type);
   }
 
-  if (type == "+IPD") {
+  if (type == "+CWLAP") {
+    
+    char messageChar[data.length() + 1];
+    convertStringToChar(data, messageChar);
+    proccessResponseListAPs(messageChar);
+
+    Serial.print("Mensagem de lista wifi: ");
+    Serial.println(messageChar);
+    
+  } else if (type == "+IPD") {
     int connectionId = 0;
     int messageLength = 0;
     char ipAddress[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -82,7 +98,7 @@ void proccessReceivedData(String data) {
     
     getDataFromReceivedData(data, &connectionId, &messageLength, ipAddress, &port);
 
-    if (DEBUG) {
+    if (DEBUG == 1) {
       Serial.print("metada: \r\nconnectionId: ");
       Serial.print(connectionId);
       Serial.print(" | messageLength: ");
@@ -101,7 +117,7 @@ void proccessReceivedData(String data) {
       
       proccessReceivedMessage(message, ipAddress, port);
       
-    } else if (DEBUG) {
+    } else if (DEBUG == 1) {
       Serial.println("Não foi possível identificar o início da mensagem. Caracter ':' não encontrado");
     }
   }  
@@ -157,43 +173,43 @@ void proccessReceivedMessage(String message, String originIp, int originPort) {
   }
 }
 
-void sendMessage(char *message, String ipAddress, int port) {
-
-  String cipSend = "AT+CIPSEND=";
-  cipSend += connectionId;
-  cipSend += ",";
-  cipSend += MESSAGE_LENGTH;
-  cipSend += ",\"";
-  cipSend += ipAddress;
-  cipSend += "\",";
-  cipSend += port;
-
-  char charCipSend[cipSend.length() + 1];
-  
-  convertStringToChar(cipSend, charCipSend);
-  
-  sendData(charCipSend, 1000, DEBUG);
-  
-  char preparedMessage[MESSAGE_LENGTH + 1];
-  prepareMessage(message, preparedMessage);
-  
-  sendData(message, 1000, DEBUG);
-
-  // Verificar a necessidade disso
-  String closeCommand = "AT+CIPCLOSE=";
-  closeCommand += connectionId;
-
-  //sendData(closeCommand, 3000, DEBUG);
-}
+//void sendMessage(char *message, String ipAddress, int port) {
+//
+//  String cipSend = "AT+CIPSEND=";
+//  cipSend += connectionId;
+//  cipSend += ",";
+//  cipSend += MESSAGE_LENGTH;
+//  cipSend += ",\"";
+//  cipSend += ipAddress;
+//  cipSend += "\",";
+//  cipSend += port;
+//
+//  char charCipSend[cipSend.length() + 1];
+//  
+//  convertStringToChar(cipSend, charCipSend);
+//  
+//  sendData(charCipSend, 1000, DEBUG);
+//  
+//  char preparedMessage[MESSAGE_LENGTH + 1];
+//  prepareMessage(message, preparedMessage);
+//  
+//  sendData(message, 1000, DEBUG);
+//
+//  // Verificar a necessidade disso
+//  String closeCommand = "AT+CIPCLOSE=";
+//  closeCommand += connectionId;
+//
+//  //sendData(closeCommand, 3000, DEBUG);
+//}
 
 int sendData(char *command, const int timeout, int debug, int maxAttempts) {
 
   int okCommand = 0;
-  int maxAttempts = 0;
+  int attempts = 0;
 
   String response;
   while (okCommand == 0 && attempts <= maxAttempts) {
-    maxAttempts++;
+    attempts++;
 
     response = "";
 
@@ -211,16 +227,16 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
       }
   
       if (ok == 1) break;
+    }
 
-        if (debug) {
-          Serial.print(response);
-        }
-      
-        if (response.indexOf("OK") > 0) {
-          okCommand = 1;
-        } else {
-          okCommand = 0;
-        }
+    if (debug == 1) {
+      Serial.print(response);
+    }
+  
+    if (response.indexOf("OK") > 0) {
+      okCommand = 1;
+    } else {
+      okCommand = 0;
     }
   }
   
@@ -290,7 +306,7 @@ void getDataFromReceivedData(String data, int *connectionId, int *messageLength,
     }
   }
 
-  if (DEBUG) {
+  if (DEBUG == 1) {
     Serial.print("ConnectionID: ");
     Serial.println(connectionIdStr);
     Serial.print("Message length: ");
