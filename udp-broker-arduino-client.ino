@@ -27,20 +27,20 @@ void setup() {
     Serial.print(".");
   }
   Serial.println(".");
-  
-  //setStationMode(sendData);
-  
+    
   for (int i = 0; i < 10; i++) {
     delay(100);  
     Serial.print(".");
   }
   Serial.println(".");
   
-  //setMultipleConnections(sendData);
-  //enableShowRemoteIp(sendData);
+  setMultipleConnections(sendData);
+  enableShowRemoteIp(sendData);
   
   //startServer(sendData);
-
+  
+  startAccessPointConfig();
+  
   Serial.println("Terminou setup");
 }
 

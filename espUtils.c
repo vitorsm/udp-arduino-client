@@ -36,7 +36,7 @@ int connectToWifi(sendDataFunc *sendData, char *ssid, char *password) {
 }
 
 int setStationMode(sendDataFunc *sendData) {
-  return sendData("AT+CWMODE=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  return sendData("AT+CWMODE_CUR=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
 void showLocalIpAddress(sendDataFunc *sendData) {
@@ -103,8 +103,13 @@ int startAccessPoint(sendDataFunc *sendData, char *ssid) {
 
 int stopAccessPoint(sendDataFunc *sendData) {
   
-  return sendData("AT+CWMODE_CUR=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  int response = setStationMode(sendData);
   
+  if (response == 1) {
+    response = sendData("AT+CWQAP", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  }
+
+  return response;
 }
 
 
@@ -138,7 +143,7 @@ int stopTCPServer(sendDataFunc *sendData, int port) {
 
 int listAPs(sendDataFunc *sendData) {
   
-  return sendData("AT+CWLAP", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
+  return sendData("AT+CWLAP=,,,1,,", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
   
 }
 

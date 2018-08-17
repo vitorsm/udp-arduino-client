@@ -22,10 +22,13 @@ void stopAccessPointConfig(sendDataFunc *sendData);
 void startServerConfig(sendDataFunc *sendData);
 void stopServerConfig(sendDataFunc *sendData);
 
-void proccessResponseListAPs(char *command);
+void proccessResponseListAPs(sendDataFunc *sendData, char *command);
 void proccessRequestNetworks(sendDataFunc *sendData);
 
-void proccessWifiConfig(sendDataFunc *sendData);
+void proccessWifiConfig(sendDataFunc *sendData, char *command);
 void proccessCredentialsConfig(sendDataFunc *sendData);
+
+// private
+void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *password);
 
 #endif /* ACCESSPOINT_H_ */
