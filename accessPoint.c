@@ -32,11 +32,11 @@ void stopServerConfig(sendDataFunc *sendData) {
   
 }
 
-void proccessRequestNetworks(sendDataFunc *sendData) {
+void processRequestNetworks(sendDataFunc *sendData) {
   listAPs(sendData); 
 }
 
-void proccessResponseListAPs(sendDataFunc *sendData, char *command) {
+void processResponseListAPs(sendDataFunc *sendData, char *command) {
   int commandSize = strlen(command);
 
   // colocar aqui um tratamento de string para mandar a lista de redes wifi disponiveis
@@ -46,7 +46,7 @@ void proccessResponseListAPs(sendDataFunc *sendData, char *command) {
   // implementar o build message networks information
 }
 
-void proccessWifiConfig(sendDataFunc *sendData, char *command) {
+void processWifiConfig(sendDataFunc *sendData, char *command) {
 
   int commandSize = strlen(command);
 

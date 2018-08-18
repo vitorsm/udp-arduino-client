@@ -59,17 +59,6 @@ void loop() {
     proccessReceivedData(message);
     
   }
-
-  if (was == 0) {
-    was = 1;
-    listAPs(sendData);
-  }
-//  if (brokerIpAddress == "") {
-//    if (millis() - lastRequestBroker >= TIME_REQUEST_HELLO) {
-//      sendHelloMessage(sendData);
-//      lastRequestBroker = millis();
-//    }
-//  }
   
 }
 

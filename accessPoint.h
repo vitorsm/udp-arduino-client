@@ -22,11 +22,11 @@ void stopAccessPointConfig(sendDataFunc *sendData);
 void startServerConfig(sendDataFunc *sendData);
 void stopServerConfig(sendDataFunc *sendData);
 
-void proccessResponseListAPs(sendDataFunc *sendData, char *command);
-void proccessRequestNetworks(sendDataFunc *sendData);
+void processResponseListAPs(sendDataFunc *sendData, char *command);
+void processRequestNetworks(sendDataFunc *sendData);
 
-void proccessWifiConfig(sendDataFunc *sendData, char *command);
-void proccessCredentialsConfig(sendDataFunc *sendData);
+void processWifiConfig(sendDataFunc *sendData, char *command);
+void processCredentialsConfig(sendDataFunc *sendData);
 
 // private
 void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *password);

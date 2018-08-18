@@ -288,3 +288,12 @@ void concatString(char *str1, char *str2, char *result) {
 
   result[size1 + size2] = 0;
 }
+
+int getMin(float n1, float n2) {
+
+    if (n1 < n2)
+      return n1;
+    else
+      return n2;
+}
+
