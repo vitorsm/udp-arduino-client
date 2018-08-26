@@ -29,6 +29,6 @@ void processWifiConfig(sendDataFunc *sendData, char *command);
 void processCredentialsConfig(sendDataFunc *sendData);
 
 // private
-void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *password);
+void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password);
 
 #endif /* ACCESSPOINT_H_ */

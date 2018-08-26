@@ -42,4 +42,6 @@ void subvectorBytes(char *vector, int starts, int end, char *result);
 void concatString(char *str1, char *str2, char *result);
 
 int getMin(float n1, float n2);
+
+void clearString(char *str, int size);
 #endif /* UTILS_H_ */

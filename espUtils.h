@@ -10,7 +10,6 @@
 
 #define DEFAULT_TIMEOUT 1000
 #define MAX_ATTEMPTS 10
-#define DEBUG 1
 
 #define CHANNEL_AP 1
 #define ENCRYPTATION_MODE_AP 0 // 0: OPEN, 2: WPA_PSK, 3: WPA2_PSK, WPA_WPA2_PSK
@@ -29,7 +28,7 @@ int connectToWifi(sendDataFunc *sendData, char *ssid, char *password);
 
 int setStationMode(sendDataFunc *sendData);
 
-void showLocalIpAddress(sendDataFunc *sendData);
+int showLocalIpAddress(sendDataFunc *sendData);
 
 int setMultipleConnections(sendDataFunc *sendData);
 
@@ -53,7 +52,7 @@ int listAPs(sendDataFunc *sendData);
 
 int sendHelloMessage(sendDataFunc *sendData);
 
-void sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port);
+int sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port);
 
 void setCredentials(char *assetId, char *password);
 

@@ -8,6 +8,8 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
+#define DEBUG 1
+
 #define TIME_REQUEST_HELLO 8000
 
 /***
@@ -72,5 +74,21 @@
 #define SSID_MAX_LENGTH_NAME 20
 #define BSSID_LENGTH 15
 #define MAX_NETWORKS 30
+
+
+#define LOG_SIZE 1
+
+/***
+ * Digital Control
+ */
+
+#define PORTS_AMOUNT 5
+#define PORT_1 1
+#define PORT_2 2
+#define PORT_3 3
+#define PORT_4 4
+#define PORT_5 5
+
+#define MAX_AMOUNT_INPUT 10
 
 #endif /* CONSTANTS_H_ */

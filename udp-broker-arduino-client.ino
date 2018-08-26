@@ -4,13 +4,15 @@
 #include <SoftwareSerial.h>
 #include "espUtils.c"
 #include "accessPoint.c"
+#include "processEspData.c"
+#include "digitalControl.c"
 
-#define DEBUG 1
-
-String brokerIpAddress = "";
+char brokerIp[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int connectionId = 0;
 long lastRequestBroker = 0;
+
+char strLogging[LOG_SIZE];
 
 SoftwareSerial esp8266(2, 3);
 
@@ -22,13 +24,13 @@ void setup() {
   moduleReset(sendData);
   //connectToWifi(sendData, "2.4Ghz Virtua 302", "3207473600");
   
-  for (int i = 0; i < 60; i++) {
+  for (int i = 0; i < 20; i++) {
     delay(100);  
     Serial.print(".");
   }
   Serial.println(".");
     
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 20; i++) {
     delay(100);  
     Serial.print(".");
   }
@@ -36,10 +38,22 @@ void setup() {
   
   setMultipleConnections(sendData);
   enableShowRemoteIp(sendData);
+  //setStationMode(sendData);
   
   //startServer(sendData);
   
-  startAccessPointConfig();
+  startAccessPointConfig(sendData);
+  showLocalIpAddress(sendData);
+
+  for (int i = 0; i < 100; i++) {
+    delay(100);  
+    Serial.print(".");
+  }
+
+  startServer(sendData);
+
+  Serial.println("Digital Control Init");
+  initDigitalControl();
   
   Serial.println("Terminou setup");
 }
@@ -47,7 +61,8 @@ void setup() {
 int was = 0;
 
 void loop() {
- 
+  
+  clearString(strLogging, LOG_SIZE);
   String message = "";
   
   while (esp8266.available()) {
@@ -55,156 +70,52 @@ void loop() {
   }
 
   if (message != "") {
-        
-    proccessReceivedData(message);
+    Serial.print("tamanho comando: ");
+    Serial.println(message.length());
     
-  }
-  
-}
+    char strMessage[message.length() + 1];
+    //message.toCharArray(strMessage, message.length() + 1);
+    convertStringToChar(message, strMessage);
 
-void proccessReceivedData(String data) {
-  
-  String type = data.substring(2, 6);
-  
-  if (DEBUG == 1) {
-    Serial.println("type: " + type);
-  }
-
-  if (type == "+CWLAP") {
+    Serial.print("mensagem para funcaoi: ");
+    Serial.println(strMessage);
     
-    char messageChar[data.length() + 1];
-    convertStringToChar(data, messageChar);
-    proccessResponseListAPs(messageChar);
-
-    Serial.print("Mensagem de lista wifi: ");
-    Serial.println(messageChar);
-    
-  } else if (type == "+IPD") {
-    int connectionId = 0;
-    int messageLength = 0;
-    char ipAddress[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int port = 0;
-    
-    getDataFromReceivedData(data, &connectionId, &messageLength, ipAddress, &port);
-
     if (DEBUG == 1) {
-      Serial.print("metada: \r\nconnectionId: ");
-      Serial.print(connectionId);
-      Serial.print(" | messageLength: ");
-      Serial.print(messageLength);
-      Serial.print(" | ipAddress: ");
-      Serial.print(ipAddress);
-      Serial.print(" | port: ");
-      Serial.println(port);
+      Serial.println("Mensagem recebida: ");
+      Serial.println(message);
+      Serial.println("-----------------");
     }
     
-    int startsMessage = getStartsMessage(data);
+    //proccessReceivedData(sendData, strMessage, strLogging);
 
-    if (startsMessage >= 0) {
-      
-      String message = data.substring(startsMessage, startsMessage + messageLength);
-      
-      proccessReceivedMessage(message, ipAddress, port);
-      
-    } else if (DEBUG == 1) {
-      Serial.println("Não foi possível identificar o início da mensagem. Caracter ':' não encontrado");
-    }
-  }  
-}
+//    free(strMessage);
+  }
 
-void proccessReceivedMessage(String message, String originIp, int originPort) {
+//  if (was == 0) {
+//    was = 1;
+//    listAPs(sendData);
+//  }
   
-  char messageProccess[message.length() + 1];
-  convertStringToChar(message, messageProccess);
-      
-  char strMessageType[2];
-  strMessageType[1] = 0;
-  subvectorBytes(messageProccess, 0, 1, strMessageType);
-
-  Serial.println("");
-  Serial.println(strMessageType);
-  
-  int messageType = convertBytesToInt(strMessageType);
-
-  Serial.print("vai processar: ");
-  Serial.println(messageProccess);
-  Serial.print("Message type: ");
-  Serial.println(messageType);
-
-  float value = 12;
-  switch (messageType) {
-    case MESSAGE_TYPE_UPDATE_PARAM:
-      Serial.println("recebeu uma mensagem de atualizacao de parametros");
-      brokerIpAddress = originIp;
-      break;
-    case MESSAGE_TYPE_DATA:
-      char topic[MESSAGE_BODY_LENGTH - MESSAGE_TOKEN_LENGTH + 1];
-      proccessDataMessage(messageProccess, topic, &value);
-      topic[MESSAGE_TOKEN_LENGTH] = 0;
-      
-      Serial.println("recebeu uma mensagem de dados:");
-      Serial.print("value: ");
-      Serial.println(value);
-      Serial.print("topic: ");
-      Serial.println(topic);
-      
-      break;
-    case MESSAGE_TYPE_PUBLISH:
-      break;
-    case MESSAGE_TYPE_SUBSCRIBE:
-      break;
-    case MESSAGE_TYPE_KEEP_ALIVE:
-      break;
-    case MESSAGE_TYPE_HELLO:
-      break;
-    default:
-      break;
+  if (DEBUG == 1 && strlen(strLogging) > 0) {
+    Serial.println(strLogging);
   }
 }
-
-//void sendMessage(char *message, String ipAddress, int port) {
-//
-//  String cipSend = "AT+CIPSEND=";
-//  cipSend += connectionId;
-//  cipSend += ",";
-//  cipSend += MESSAGE_LENGTH;
-//  cipSend += ",\"";
-//  cipSend += ipAddress;
-//  cipSend += "\",";
-//  cipSend += port;
-//
-//  char charCipSend[cipSend.length() + 1];
-//  
-//  convertStringToChar(cipSend, charCipSend);
-//  
-//  sendData(charCipSend, 1000, DEBUG);
-//  
-//  char preparedMessage[MESSAGE_LENGTH + 1];
-//  prepareMessage(message, preparedMessage);
-//  
-//  sendData(message, 1000, DEBUG);
-//
-//  // Verificar a necessidade disso
-//  String closeCommand = "AT+CIPCLOSE=";
-//  closeCommand += connectionId;
-//
-//  //sendData(closeCommand, 3000, DEBUG);
-//}
 
 int sendData(char *command, const int timeout, int debug, int maxAttempts) {
-
+  
   int okCommand = 0;
   int attempts = 0;
 
   String response;
-  while (okCommand == 0 && attempts <= maxAttempts) {
-    attempts++;
-
+  while (okCommand != 1 && attempts <= maxAttempts) {
     response = "";
 
-    esp8266.print(command);
-    esp8266.print("\r\n");
-  
+    if (okCommand != 2) {
+      attempts++;
+      esp8266.print(command);
+      esp8266.print("\r\n");
+    }
+
     int ok = 0;
     long int time = millis();
     while ( (time + timeout) > millis()) {
@@ -212,18 +123,28 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
       while (esp8266.available()) {
         char c = esp8266.read(); // read the next character.
         response += c;
-        ok = 1;
+        //ok = 1;
       }
-  
-      if (ok == 1) break;
+
+//      if ((response.indexOf("+") > 0 || response.indexOf("OK") > 0) && response.length() > 1) {
+//        ok = 1;
+//        break;
+//      }
+//        if (response.indexOf("\r\n") > 0) {
+//          ok = 1;
+//          break;          
+//        }
+      //if (ok == 1) break;
     }
 
     if (debug == 1) {
       Serial.print(response);
     }
   
-    if (response.indexOf("OK") > 0) {
+    if (response.indexOf("OK") > 0 || response.indexOf("busy")) {
       okCommand = 1;
+//    } else if(response.indexOf("busy") > 0) {
+//      okCommand = 2;
     } else {
       okCommand = 0;
     }
@@ -233,82 +154,6 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
 }
 
 
-int getStartsMessage(String message) {
-
-  int strLength = message.length();
-  
-  for (int i = 0; i < strLength; i++) {
-    char c = message.charAt(i);
-    if (c == ':') {
-      return i + 1;
-    }
-  }
-
-  return -1;
-}
-
-void convertStringToChar(String str, char *strChar) {
-
-  int strLength = str.length();
-  Serial.println("isso q vai converter: ");
-  for (int i = 0; i < strLength; i++) {
-    strChar[i] = str.charAt(i);
-    Serial.print(str.charAt(i));
-  }
-  strChar[strLength] = 0;
-  
-  Serial.println("");
-}
-
-void getDataFromReceivedData(String data, int *connectionId, int *messageLength, char *ipAddress, int *port) {
-
-  int dataLength = data.length();
-
-  int commaCount = 0;
-  
-  int countStr = 0;
-  char messageLengthStr[] = {0, 0, 0, 0, 0, 0, 0};
-  char connectionIdStr[] = {0, 0};
-  char portStr[] = {0, 0, 0, 0, 0, 0, 0, 0};
-  
-  for (int i = 0; i < dataLength; i++) {
-    char c = data.charAt(i);
-
-    if (c == ':') {
-      break;
-    } else if (c == ',') {
-      commaCount++;
-      countStr = 0;
-    } else {
-
-      if (commaCount == 1) {
-        connectionIdStr[0] = c;
-      } else if (commaCount == 2) {
-        messageLengthStr[countStr] = c;
-      } else if (commaCount == 3) {
-        ipAddress[countStr] = c;
-      } else if (commaCount == 4) {
-        portStr[countStr] = c;
-      }
-
-      countStr++;
-    }
-  }
-
-  if (DEBUG == 1) {
-    Serial.print("ConnectionID: ");
-    Serial.println(connectionIdStr);
-    Serial.print("Message length: ");
-    Serial.println(messageLengthStr);
-    Serial.print("Port: ");
-    Serial.println(portStr);
-  } 
-  
-  *connectionId = convertBytesToInt(connectionIdStr);
-  *messageLength = convertBytesToInt(messageLengthStr);
-  *port = convertBytesToInt(portStr);
-}
-
 void prepareMessage(char *originalMessage, char *preparedMessage) {
 
   for (int i = 0; i < MESSAGE_LENGTH; i++) {
@@ -316,5 +161,19 @@ void prepareMessage(char *originalMessage, char *preparedMessage) {
   }
 
   preparedMessage[MESSAGE_LENGTH] = '>';
+}
+
+void convertStringToChar(String str, char *charStr) {
+  Serial.print("vai converter: ");
+  Serial.println(str);
+  Serial.println("---------------------");
+  
+  int strLength = str.length();
+  
+  for (int i = 0; i < strLength; i++) {
+    charStr[i] = str.charAt(i);  
+  }
+
+  charStr[strLength] = 0;
 }
 

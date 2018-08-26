@@ -83,6 +83,8 @@ void buildMessagePublish(char *topic, char *token, float value, int isIntValue, 
 
 		message[i + MESSAGE_HEADER_LENGTH + MESSAGE_TOPIC_LENGTH] = contentValue[i];
 	}
+
+// free(contentValue);
 }
 
 
@@ -92,7 +94,7 @@ int getMessageType(char *message) {
 
 }
 
-void proccessDataMessage(char *message, char *topic, float *value) {
+void proccessDataMessage(char *message, char *topic, float *value, char *strValue) {
 
 	char receivedToken[MESSAGE_TOKEN_LENGTH];
 	char receivedTopic[MESSAGE_TOPIC_LENGTH];
@@ -114,8 +116,14 @@ void proccessDataMessage(char *message, char *topic, float *value) {
 	removeEmptyChar(receivedToken, MESSAGE_TOKEN_LENGTH);
 	removeEmptyChar(receivedValue, MESSAGE_BODY_CONTENT_LENGTH);
 
+  concatString("", receivedValue, strValue);
 	float floatValue = convertBytesToFloat(receivedValue);
 	*value = floatValue;
+
+//  free(receivedToken);
+//  free(receivedTopic);
+//  free(receivedValue);
+  
 }
 
 void proccessRuleMessage(char *message) {

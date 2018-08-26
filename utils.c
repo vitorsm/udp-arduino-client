@@ -32,6 +32,8 @@ void convertIntToBytesIgnoreNegative(int value, char *charValue, int numbersOfBy
 		value = -value;
 	}
 
+  clearString(charValue, numbersOfBytes);
+  
 	int count = countDigitNumbers(value);
 	int divider = getDividerNumber(value);
 
@@ -63,10 +65,11 @@ void convertIntToBytes(int value, char *charValue, int numbersOfBytes) {
 		isNegative = 1;
 		value = -value;
 	}
-
-	for (int i = 0; i < numbersOfBytes; i++) {
-		charValue[i] = 0;
-	}
+//
+//	for (int i = 0; i < numbersOfBytes; i++) {
+//		charValue[i] = 0;
+//	}
+  clearString(charValue, numbersOfBytes);
 
 	int count = countDigitNumbers(value);
 	int divider = getDividerNumber(value);
@@ -254,7 +257,7 @@ void convertFloatToBytes(float value, char *charValue, int numbersOfBytes) {
 }
 
 int compareBytes(char *value1, char *value2, int size) {
-
+  
 	for (int i = 0; i < size; i++) {
 		if (value1[i] != value2[i]) return 0;
 	}
@@ -297,3 +300,8 @@ int getMin(float n1, float n2) {
       return n2;
 }
 
+void clearString(char *str, int size) {
+  for (int i = 0; i < size; i++) {
+    str[i] = 0;
+  }
+}

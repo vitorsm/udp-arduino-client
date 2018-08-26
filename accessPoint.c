@@ -82,67 +82,105 @@ void processWifiConfig(sendDataFunc *sendData, char *command) {
   }
 }
 
+//void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password) {
+//  int commaCount = 0;
+//  int emptyCharCount = 0;
+//  int startGet = 0;
+//  int wordCount = 0;
+//  int startEmpty = 0;
+//
+//  int commandSize = strlen(command);
+//  
+//  for (int i = 0; i < commandSize; i++) {
+//    char c = command[i];
+//
+//    if (c == EMPTY_CHAR) {
+//      startEmpty = 1;
+//      emptyCharCount++;
+//      wordCount = 0;
+//    } else if (startEmpty) {
+//
+//      if (c == EMPTY_CHAR) {
+//        emptyCharCount++;
+//        wordCount = 0;
+//      } else if (emptyCharCount == 1) {
+//        passwordWifi[wordCount] = c;
+//        wordCount++;
+//      } else if (emptyCharCount == 2) {
+//        id[wordCount] = c;
+//        wordCount++;
+//      } else if (emptyCharCount == 3) {
+//        password[wordCount] = c;
+//        wordCount++;
+//      }
+//    } else if (startGet == 0 && c == ',') {
+//      commaCount++;
+//    } else {
+//      
+//      if (commaCount == 1) {
+//        // Verificar se ja pegou a aspas, pq não faz parte do ssid
+//        if (startGet == 0) {
+//          startGet = 1;
+//        } else {
+//          if (c == '"') {
+//            startGet = 0;
+//            wordCount = 0;
+//          } else {
+//            ssid[wordCount] = c;
+//            wordCount++;
+//          }
+//        }
+//        
+//      } else if (commaCount == 3) {
+//        // Verificar se ja pegou a aspas, pq não faz parte do ssid
+//        if (startGet == 0) {
+//          startGet = 1;
+//        } else {
+//          if (c == '"') {
+//            startGet = 0;
+//            wordCount = 0;
+//          } else {
+//            netMacAddress[wordCount] = c;
+//            wordCount++;
+//          }
+//        }
+//      }
+//    }
+//  }
+//}
+
 void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password) {
-  int commaCount = 0;
   int emptyCharCount = 0;
-  int startGet = 0;
+
+  int commandSize = strlen(command);
+
   int wordCount = 0;
-  int startEmpty = 0;
   
   for (int i = 0; i < commandSize; i++) {
     char c = command[i];
 
     if (c == EMPTY_CHAR) {
-      startEmpty = 1;
       emptyCharCount++;
       wordCount = 0;
-    } else if (startEmpty) {
-
-      if (c == EMPTY_CHAR) {
-        emptyCharCount++;
-        wordCount = 0;
-      } else if (emptyCharCount == 1) {
-        passwordWifi[wordCount] = c;
+    } else {
+      if (emptyCharCount == 1) {
+        ssid[wordCount] = c;
         wordCount++;
       } else if (emptyCharCount == 2) {
-        id[wordCount] = c;
+        netMacAddress[wordCount] = c;
         wordCount++;
       } else if (emptyCharCount == 3) {
+        passwordWifi[wordCount] = c;
+        wordCount++;
+      } else if (emptyCharCount == 4) {
+        id[wordCount] = c;
+        wordCount++;
+      } else if (emptyCharCount == 5) {
         password[wordCount] = c;
         wordCount++;
       }
-    } else if (startGet == 0 && c == ',') {
-      commaCount++;
-    } else {
-      
-      if (commaCount == 1) {
-        // Verificar se ja pegou a aspas, pq não faz parte do ssid
-        if (startGet == 0) {
-          startGet = 1;
-        } else {
-          if (c == '"') {
-            startGet = 0;
-            wordCount = 0;
-          } else {
-            ssid[wordCount] = c;
-            wordCount++;
-          }
-        }
-        
-      } else if (commaCount == 3) {
-        // Verificar se ja pegou a aspas, pq não faz parte do ssid
-        if (startGet == 0) {
-          startGet = 1;
-        } else {
-          if (c == '"') {
-            startGet = 0;
-            wordCount = 0;
-          } else {
-            netMacAddress[wordCount] = c;
-            wordCount++;
-          }
-        }
-      }
     }
   }
+
+  
 }

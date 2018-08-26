@@ -19,7 +19,7 @@ void buildMessagePublish(char *topic, char *token, float value, int isIntValue, 
 
 int getMessageType(char *message);
 
-void proccessDataMessage(char *message, char *topic, float *value);
+void proccessDataMessage(char *message, char *topic, float *value, char *strValue);
 
 void proccessRuleMessage(char *message);
 
