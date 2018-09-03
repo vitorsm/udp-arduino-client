@@ -34,7 +34,7 @@ float lastInput[PORTS_AMOUNT];
 float kp[PORTS_AMOUNT];
 float ki[PORTS_AMOUNT];
 float kd[PORTS_AMOUNT];
-char typeIO[PORTS_AMOUNT]; //byte: 0: input, 1: output
+char typeIO[PORTS_AMOUNT]; //byte: 0: input, 1: PID_output, 2: binary_output, 3: pulse_output
 unsigned long sampleTime[PORTS_AMOUNT];
 struct Condition *conditions[PORTS_AMOUNT];
 
