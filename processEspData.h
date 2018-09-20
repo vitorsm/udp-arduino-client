@@ -15,8 +15,9 @@
 typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 int brokerIpAddressFound;
 char brokerIpAddress[16];
+typedef void (serialPrintFunc)(char *message);
 
-void proccessReceivedData(sendDataFunc *sendData, char *data, char *strLog);
+void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint);
 void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, char *ipAddress, int *port);
 void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, char *strLog);
 void getBrokerIpAddress(char *ipAddress);

@@ -8,7 +8,7 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#define DEBUG 1
+#define DEBUG 0
 
 #define TIME_REQUEST_HELLO 8000
 

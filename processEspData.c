@@ -7,7 +7,7 @@
 
 #include "processEspData.h"
 
-void proccessReceivedData(sendDataFunc *sendData, char *data, char *strLog) {
+void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint) {
 
   int startMessage = 0;
   int startType = 0;
@@ -26,78 +26,48 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, char *strLog) {
     convertIntToBytes(startType, strStartType, 4);
     convertIntToBytes(endsType, strEndsType, 4);
 
-    concatString(strLog, "\r\nstartMessage", strLog);
-    concatString(strLog, strStartMessage, strLog);
-    concatString(strLog, "\r\nstartType", strLog);
-    concatString(strLog, strStartType, strLog);
-    concatString(strLog, "\r\nendsType", strLog);
-    concatString(strLog, strEndsType, strLog);
-
-    concatString(strLog, "\r\nmensagem: \r\n", strLog);
-    concatString(strLog, data, strLog);
-
-//    free(strStartMessage);
-//    free(strStartType);
-//    free(strEndsType);
+    serialPrint("foi");
   }
   
-//  if (startMessage >= 0 && startType >= 0 && endsType >= 0) {
-//    char type[startType + endsType + 1];
-//    subvectorBytes(data, startType, endsType, type);
-//    type[startMessage] = 0;
-//    
-//    if (DEBUG == 1) {
-//      concatString(strLog, "\r\ntype: ", strLog);
-//      concatString(strLog, type, strLog);
-//      concatString(strLog, "\r\n", strLog);
-//    }
-//    
-//    if (compareBytes("+CWLAP1", type, 5) == 1) {
-//      concatString(strLog, "\r\nMensagem de lista wifi: ", strLog);
-//      
-//      //proccessResponseListAPs(data);
-//      processResponseListAPs(sendData, data);
-//      
-//    } else if (compareBytes("+IPD", type, 4)) {
-//      int connectionId = 0;
-//      int messageLength = 0;
-//      char ipAddress[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-//      int port = 0;
-//  
-//      getDataFromReceivedData(data, &connectionId, &messageLength, ipAddress, &port);
-//  
-//      if (DEBUG == 1) {
-//        concatString(strLog, "metada: \r\nconnectionId: ", strLog);
-//        concatString(strLog, connectionId, strLog);
-//        concatString(strLog, " | messageLength: ", strLog);
-//        concatString(strLog, messageLength, strLog);
-//        concatString(strLog, " | ipAddress: ", strLog);
-//        concatString(strLog, ipAddress, strLog);
-//        concatString(strLog, " | port: ", strLog);
-//        concatString(strLog, port, strLog);
-//        concatString(strLog, "\r\n", strLog);
-//      }
-//  
-//      //int startsMessage = getStartsMessage(data);
-//  
-//      if (startMessage >= 0) {
-//        char message[startMessage + messageLength + 1];
-//        subvectorBytes(data, startMessage, startMessage + messageLength, message);
-//        message[startMessage + messageLength] = 0;
-//  
-//        proccessReceivedMessage(sendData, message, ipAddress, port, strLog);
-//      }
-//    } else if (DEBUG == 1) {
-//      char test[3];
-//      convertIntToBytes(startMessage, test, 3);
-//      concatString(strLog, "Tipo indefinido: \r\n", strLog);
-//      concatString(strLog, type, strLog);
-//      concatString(strLog, "<<<-\r\n", strLog);
-//      concatString(strLog, test, strLog);
-//      concatString(strLog, "<<<-\r\n", strLog);
-//      
-//    }
-//  }
+  if (startMessage >= 0 && startType >= 0 && endsType >= 0) {
+    char type[startType + endsType + 1];
+    subvectorBytes(data, startType, endsType, type);
+    type[startMessage] = 0;
+    
+    if (DEBUG == 1) {
+      //printar type
+    }
+    
+    if (compareBytes("+CWLAP1", type, 5) == 1) {
+      serialPrint("Mensagem de lista wifi: ");
+      
+      //proccessResponseListAPs(data);
+      processResponseListAPs(sendData, data);
+      
+    } else if (compareBytes("+IPD", type, 4)) {
+      int connectionId = 0;
+      int messageLength = 0;
+      char ipAddress[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      int port = 0;
+  
+      getDataFromReceivedData(data, &connectionId, &messageLength, ipAddress, &port);
+  
+      if (DEBUG == 1) {
+          //printar os dados recebidos
+      }
+   
+      if (startMessage >= 0) {
+        char message[startMessage + messageLength + 1];
+        subvectorBytes(data, startMessage, startMessage + messageLength, message);
+        message[startMessage + messageLength] = 0;
+  
+        proccessReceivedMessage(sendData, message, ipAddress, port, 0);
+      }
+    } else if (DEBUG == 1) {
+      char test[3];
+      serialPrint("Tipo indefinido");
+    }
+  }
     
   
 }

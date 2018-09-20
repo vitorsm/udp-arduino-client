@@ -22,7 +22,8 @@ void stopAccessPointConfig(sendDataFunc *sendData) {
 
 void startServerConfig(sendDataFunc *sendData) {
 
-  startTCPServer(sendData, CLIENT_PORT);
+//  startTCPServer(sendData, CLIENT_PORT);
+  startServer(sendData);
   
 }
 

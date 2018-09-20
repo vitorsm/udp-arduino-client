@@ -12,7 +12,7 @@ char brokerIp[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int connectionId = 0;
 long lastRequestBroker = 0;
 
-char strLogging[LOG_SIZE];
+
 
 SoftwareSerial esp8266(2, 3);
 
@@ -50,10 +50,10 @@ void setup() {
     Serial.print(".");
   }
 
-  startServer(sendData);
+  //startServer(sendData);
 
-  Serial.println("Digital Control Init");
-  initDigitalControl();
+  //Serial.println("Digital Control Init");
+  //initDigitalControl();
   
   Serial.println("Terminou setup");
 }
@@ -62,7 +62,6 @@ int was = 0;
 
 void loop() {
   
-  clearString(strLogging, LOG_SIZE);
   String message = "";
   
   while (esp8266.available()) {
@@ -80,13 +79,12 @@ void loop() {
     Serial.print("mensagem para funcaoi: ");
     Serial.println(strMessage);
     
-    if (DEBUG == 1) {
-      Serial.println("Mensagem recebida: ");
-      Serial.println(message);
-      Serial.println("-----------------");
-    }
+//    if (DEBUG == 1) {
+      Serial.print("mensagem para funcaoi: ");
+//      Serial.println(strMessage);
+//    }
     
-    //proccessReceivedData(sendData, strMessage, strLogging);
+    proccessReceivedData(sendData, strMessage, serialPrintln);
 
 //    free(strMessage);
   }
@@ -95,10 +93,6 @@ void loop() {
 //    was = 1;
 //    listAPs(sendData);
 //  }
-  
-  if (DEBUG == 1 && strlen(strLogging) > 0) {
-    Serial.println(strLogging);
-  }
 }
 
 int sendData(char *command, const int timeout, int debug, int maxAttempts) {
@@ -176,4 +170,13 @@ void convertStringToChar(String str, char *charStr) {
 
   charStr[strLength] = 0;
 }
+
+void serialPrintln(char *msg) {
+  Serial.println(msg);
+}
+
+void serialPrint(char *msg) {
+  Serial.print(msg);
+}
+
 
