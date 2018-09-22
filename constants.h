@@ -8,7 +8,7 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#define DEBUG 0
+#define DEBUG 1
 
 #define TIME_REQUEST_HELLO 8000
 
@@ -76,7 +76,6 @@
 #define MAX_NETWORKS 30
 
 
-#define LOG_SIZE 1
 
 /***
  * Digital Control
@@ -90,5 +89,12 @@
 #define PORT_5 5
 
 #define MAX_AMOUNT_INPUT 10
+
+/***
+ * Configurações mensagens AT
+ * /
+ */
+
+#define MAX_SIZE_AT_TYPE_MESSAGE 10
 
 #endif /* CONSTANTS_H_ */

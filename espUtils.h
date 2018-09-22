@@ -21,10 +21,11 @@ char assetId[MESSAGE_ID_LENGTH];
 char password[MESSAGE_PASSWORD_LENGTH];
 
 typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
+typedef void (serialPrintFunc)(char *message, int isPrintln);
 
 void moduleReset(sendDataFunc *sendData);
 
-int connectToWifi(sendDataFunc *sendData, char *ssid, char *password);
+int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrintFunc *serialPrint);
 
 int setStationMode(sendDataFunc *sendData);
 

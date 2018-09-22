@@ -5,7 +5,7 @@
 #include "espUtils.c"
 #include "accessPoint.c"
 #include "processEspData.c"
-#include "digitalControl.c"
+//#include "digitalControl.c"
 
 char brokerIp[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -24,13 +24,15 @@ void setup() {
   moduleReset(sendData);
   //connectToWifi(sendData, "2.4Ghz Virtua 302", "3207473600");
   
-  for (int i = 0; i < 20; i++) {
+//  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 5; i++) {
     delay(100);  
     Serial.print(".");
   }
   Serial.println(".");
     
-  for (int i = 0; i < 20; i++) {
+//  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 5; i++) {
     delay(100);  
     Serial.print(".");
   }
@@ -55,7 +57,7 @@ void setup() {
   //Serial.println("Digital Control Init");
   //initDigitalControl();
   
-  Serial.println("Terminou setup");
+  Serial.println(F("Terminou setup"));
 }
 
 int was = 0;
@@ -69,24 +71,24 @@ void loop() {
   }
 
   if (message != "") {
-    Serial.print("tamanho comando: ");
-    Serial.println(message.length());
+    if (DEBUG == 1){
+      Serial.print(F("tamanho comando: "));
+      Serial.println(message.length());
+      Serial.println(message);
+    }
     
     char strMessage[message.length() + 1];
     //message.toCharArray(strMessage, message.length() + 1);
     convertStringToChar(message, strMessage);
 
-    Serial.print("mensagem para funcaoi: ");
-    Serial.println(strMessage);
+    if (DEBUG == 1) {
+      Serial.print(F("Vai passar uma mensagem para ser processada: "));
+      Serial.println(strMessage);
+      Serial.println("---------------------------------------------------");
+    }
     
-//    if (DEBUG == 1) {
-      Serial.print("mensagem para funcaoi: ");
-//      Serial.println(strMessage);
-//    }
-    
-    proccessReceivedData(sendData, strMessage, serialPrintln);
+    proccessReceivedData(sendData, strMessage, serialPrint);
 
-//    free(strMessage);
   }
 
 //  if (was == 0) {
@@ -131,7 +133,7 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
       //if (ok == 1) break;
     }
 
-    if (debug == 1) {
+    if (DEBUG == 1) {
       Serial.print(response);
     }
   
@@ -158,7 +160,7 @@ void prepareMessage(char *originalMessage, char *preparedMessage) {
 }
 
 void convertStringToChar(String str, char *charStr) {
-  Serial.print("vai converter: ");
+  Serial.print(F("vai converter: "));
   Serial.println(str);
   Serial.println("---------------------");
   
@@ -175,8 +177,12 @@ void serialPrintln(char *msg) {
   Serial.println(msg);
 }
 
-void serialPrint(char *msg) {
-  Serial.print(msg);
+void serialPrint(char *msg, int isPrintln) {
+  if (isPrintln == 1) {
+    Serial.println(msg);
+  } else {
+    Serial.print(msg);
+  }
 }
 
 

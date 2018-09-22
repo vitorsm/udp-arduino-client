@@ -14,7 +14,7 @@ void moduleReset(sendDataFunc *sendData) {
   
 }
 
-int connectToWifi(sendDataFunc *sendData, char *ssid, char *password) {
+int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrintFunc *serialPrint) {
   char *part1 = "AT+CWJAP=\"";
   char *part2 = "\",\"";
   char *part3 = "\"";
@@ -32,7 +32,9 @@ int connectToWifi(sendDataFunc *sendData, char *ssid, char *password) {
   command[charSize] = 0;
   
   //sendData("AT+CWJAP=\"2.4Ghz Virtua 302\",\"3207473600\"", DEFAULT_TIMEOUT * 2, DEBUG);
-
+//  serialPrint("cw:", 1);
+//  serialPrint(command, 1);
+  
   int response = sendData(command, DEFAULT_TIMEOUT * 2, DEBUG, MAXIMUM_ATTEMPTS);
 //  free(part1);
 //  free(part2);
