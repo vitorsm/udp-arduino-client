@@ -10,19 +10,11 @@
 
 #include "utils.h"
 #include "constants.h"
+#include "messageUtils.h"
 
-struct Condition {
-  int inputId;
-  char operation;
-  float value;
-  struct Condition *next;
-};
-
-struct Input {
-  int id;
-  float value;
-};
-
+typedef void (serialPrintFunc)(char *message, int isPrintln);
+typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
+typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 
 unsigned long lastTimeChange[PORTS_AMOUNT];
 float setPoint[PORTS_AMOUNT];
@@ -37,6 +29,9 @@ float kd[PORTS_AMOUNT];
 char typeIO[PORTS_AMOUNT]; //byte: 0: input, 1: PID_output, 2: binary_output, 3: pulse_output
 unsigned long sampleTime[PORTS_AMOUNT];
 struct Condition *conditions[PORTS_AMOUNT];
+
+unsigned long lastTimeSendInputs[PORTS_AMOUNT];
+
 
 void initDigitalControl();
 
@@ -54,5 +49,8 @@ int getIndexInputById(int id);
 
 int verifyCondition(char operation, float conditionValue, float inputValue);
 
+int sendInputValues(sendDataFunc *sendData);
+
+int sendInputValue(sendDataFunc *sendData, int inputId, float value);
 
 #endif /* DIGITALCONTROL_H_ */

@@ -84,7 +84,6 @@ void buildMessagePublish(char *topic, char *token, float value, int isIntValue, 
 		message[i + MESSAGE_HEADER_LENGTH + MESSAGE_TOPIC_LENGTH] = contentValue[i];
 	}
 
-// free(contentValue);
 }
 
 
@@ -118,16 +117,20 @@ void proccessDataMessage(char *message, char *topic, float *value, char *strValu
 
   concatString("", receivedValue, strValue);
 	float floatValue = convertBytesToFloat(receivedValue);
-	*value = floatValue;
-
-//  free(receivedToken);
-//  free(receivedTopic);
-//  free(receivedValue);
-  
+	*value = floatValue;  
 }
 
-void proccessRuleMessage(char *message) {
+void proccessRuleMessage(char *token, struct Condition *conditions, int *inputType, unsigned long *sampleTime, float *kp, float *ki, float *kd, char *message) {
 
+// msg: tipo de mensagem, token do modulo, listaInputTypes, listaKps, listaKis, listaKds, listaSampleTimes, listaConditions(separadas por EMPTY_CHAR e cada condition por &)
+
+  char receivedToken[MESSAGE_TOKEN_LENGTH];
+  subvectorBytes(message, 1, 1 + MESSAGE_TOKEN_LENGTH, receivedToken);
+  
+  // definir quantidade de pinos
+  // definir tamanho maximo dos ks
+  // definir tamanho maxiom dos samplePoints
+  
 }
 
 void addEmptyChar(char *str, int size) {

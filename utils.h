@@ -11,6 +11,18 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+struct Condition {
+  int inputId;
+  char operation;
+  float value;
+  struct Condition *next;
+};
+
+struct Input {
+  int id;
+  float value;
+};
+
 /***
  * Convert from integer value to byte array as a string
  */

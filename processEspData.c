@@ -7,117 +7,13 @@
 
 #include "processEspData.h"
 
-//void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint) {
-//
-//  int startMessage = 0;
-//  int startType = 0;
-//  int endsType = 0;
-//  
-//  getMessageBounds(data, &startType, &endsType, &startMessage, serialPrint);
-//  
-//  //int startMessage = getStartsMessage(data);
-//
-//  if (DEBUG == 1) {
-//    char strStartMessage[4];
-//    char strStartType[4];
-//    char strEndsType[4];
-//
-//    convertIntToBytes(startMessage, strStartMessage, 4);
-//    convertIntToBytes(startType, strStartType, 4);
-//    convertIntToBytes(endsType, strEndsType, 4);
-//
-//    serialPrint("StartMessage: ", 0);
-//    serialPrint(strStartMessage, 0);
-//    
-//    serialPrint(" | StartType: ", 0);
-//    serialPrint(strStartType, 0);
-//
-//    serialPrint(" | EndType: ", 0);
-//    serialPrint(strEndsType, 1);
-//
-//    char messageTest[] = {data[startMessage], data[startMessage + 1], 0};
-//    serialPrint("Primeiro caracter mensagem: ", 0);
-//    serialPrint(messageTest, 1);
-//
-//    char typeTest[] = {data[startType], data[endsType], 0};
-//    serialPrint("Primeiro e ultimo caracter tipo: ", 0);
-//    serialPrint(typeTest, 1);
-//    
-//  }
-//  
-//  if (startMessage >= 0 && startType >= 0 && endsType >= 0) {
-//    char type[MAX_SIZE_AT_TYPE_MESSAGE];
-//    clearString(brokerIpAddress, MAX_SIZE_AT_TYPE_MESSAGE);
-//    
-//    subvectorBytes(data, startType, endsType, type);
-//   
-//    if (DEBUG == 1) {
-//      serialPrint("Type AT message: ", 0);
-//      serialPrint(type, 1);
-//      
-//      int resp = compareBytes("+IPD", type, 4);
-//      char strResp[4];
-//      convertIntToBytes(resp, strResp, 4);
-//      serialPrint("resp: ", 0);
-//      serialPrint(strResp, 1);
-//    }
-//    
-//    if (compareBytes("+CWLAP1", type, 5) == 1) {
-//      serialPrint("Mensagem de lista wifi: ", 1);
-//      
-//      //proccessResponseListAPs(data);
-//      processResponseListAPs(sendData, data);
-//      
-//    } else if (compareBytes("+IPD", type, 4) == 1) {
-//      serialPrint("TESTE DO CARALHO", 1);
-//      int connectionId = 0;
-//      int messageLength = 0;
-//      char ipAddress[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-//      int port = 0;
-//      
-//  
-//      getDataFromReceivedData(data, &connectionId, &messageLength, ipAddress, &port, serialPrint);
-//  
-//      if (DEBUG == 1) {
-//          //printar os dados recebidos
-//          serialPrint("ipAddress: ", 0);
-//          serialPrint(ipAddress, 1);
-//          char strPort[6];
-//          convertIntToBytes(port, strPort, 6);
-//          
-//          serialPrint("port: ", 0);
-//          serialPrint(strPort, 1);
-//      }
-//   
-//      if (startMessage >= 0) {
-//        char message[startMessage + messageLength + 1];
-//        subvectorBytes(data, startMessage, startMessage + messageLength, message);
-//        message[startMessage + messageLength] = 0;
-//  
-//        proccessReceivedMessage(sendData, message, ipAddress, port, 0);
-//      } else {
-//        serialPrint("FOI NO ELSE DO startMessage >= 0", 1);
-//      }
-//      
-//      
-//    } else { 
-//      if (DEBUG == 1) {
-//        char test[3];
-//        serialPrint("Tipo de mensagem AT nao configurado", 1);
-//      }
-//    }
-//  }
-//    
-//  
-//}
-
-void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint) {
+void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
 
   int startMessage = 0;
   int startType = 0;
   int endsType = 0;
   
-  getMessageBounds(data, &startType, &endsType, &startMessage, serialPrint);
+  getMessageBounds(data, &startType, &endsType, &startMessage, serialPrint, printConstants);
   
   //int startMessage = getStartsMessage(data);
 
@@ -130,21 +26,21 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
     convertIntToBytes(startType, strStartType, 4);
     convertIntToBytes(endsType, strEndsType, 4);
 
-    serialPrint("StartMessage: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_DATA_1, 0);
     serialPrint(strStartMessage, 0);
     
-    serialPrint(" | StartType: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_DATA_2, 0);
     serialPrint(strStartType, 0);
 
-    serialPrint(" | EndType: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_DATA_3, 0);
     serialPrint(strEndsType, 1);
 
     char messageTest[] = {data[startMessage], data[startMessage + 1], 0};
-    serialPrint("Primeiro caracter mensagem: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_DATA_4, 0);
     serialPrint(messageTest, 1);
 
     char typeTest[] = {data[startType], data[endsType], 0};
-    serialPrint("Primeiro e ultimo caracter tipo: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_DATA_5, 0);
     serialPrint(typeTest, 1);
     
   }
@@ -156,20 +52,19 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
     subvectorBytes(data, startType, endsType, type);
    
     if (DEBUG == 1) {
-      serialPrint("Type AT message: ", 0);
+      printConstants(MESSAGE_INDEX_MESSAGE_TYPE_AT, 0);
       serialPrint(type, 1);
       
       int resp = compareBytes("+IPD", type, 4);
       char strResp[4];
       convertIntToBytes(resp, strResp, 4);
-      serialPrint("resp: ", 0);
+      
+      printConstants(MESSAGE_INDEX_RESPONSE, 0);
       serialPrint(strResp, 1);
     }
     
     if (compareBytes("+CWLAP1", type, 5) == 1) {
-      serialPrint("Mensagem de lista wifi: ", 1);
-
-      //proccessResponseListAPs(data);
+      printConstants(MESSAGE_INDEX_WIFI_LIST, 1);
       processResponseListAPs(sendData, data);
     } else if (compareBytes("+IPD", type, 4) == 1) {
       
@@ -178,16 +73,16 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
       char ipAddress[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
       int port = 0;
       
-      getDataFromReceivedData(data, &connectionId, &messageLength, ipAddress, &port, serialPrint);
+      getDataFromReceivedData(data, &connectionId, &messageLength, ipAddress, &port, serialPrint, printConstants);
 
       if (DEBUG == 1) {
           //printar os dados recebidos
-          serialPrint("ipAddress: ", 0);
+          printConstants(MESSAGE_INDEX_IP_ADDRESS, 0);
           serialPrint(ipAddress, 1);
           char strPort[6];
           convertIntToBytes(port, strPort, 6);
           
-          serialPrint("port: ", 0);
+          printConstants(MESSAGE_INDEX_PORT, 0);
           serialPrint(strPort, 1);
       }
 
@@ -197,22 +92,22 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
         message[messageLength] = 0;
 
         if (DEBUG == 1) {
-          serialPrint("Pegou essa mensagem: ", 1);
+          printConstants(MESSAGE_INDEX_GET_THIS, 1);
           serialPrint(message, 1);
         }
 
-        proccessReceivedMessage(sendData, message, ipAddress, port, serialPrint);
+        proccessReceivedMessage(sendData, message, ipAddress, port, serialPrint, printConstants);
       }
 
     } else if (DEBUG == 1) {
-      serialPrint("Tipo de mensagem AT nao configurado", 1);
+      printConstants(MESSAGE_INDEX_AT_TYPE_UNDEFINED, 1);
     }
   }
     
   
 }
 
-void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, char *ipAddress, int *port, serialPrintFunc *serialPrint) {
+void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, char *ipAddress, int *port, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
 
   int dataLength = strlen(data);
 
@@ -223,13 +118,13 @@ void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, 
   char connectionIdStr[] = {0, 0};
   char portStr[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-  serialPrint("Vai pegar o IP dessa msg: ", 0);
-  serialPrint(data, 1);
+  if (DEBUG == 1) {
+    printConstants(MESSAGE_INDEX_MESSAGE_TO_IP, 0);
+    serialPrint(data, 1);  
+  }
   
   for (int i = 0; i < dataLength; i++) {
     char c = data[i];
-//    char cTest[] = {c, 0};
-//    serialPrint(cTest, 0);
     
     if (c == ':') {
       break;
@@ -255,19 +150,15 @@ void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, 
   *connectionId = convertBytesToInt(connectionIdStr);
   *messageLength = convertBytesToInt(messageLengthStr);
   *port = convertBytesToInt(portStr);
-
-//  free(messageLengthStr);
-//  free(connectionIdStr);
-//  free(portStr);
 }
 
-void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, serialPrintFunc *serialPrint) {
+void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
  
   char strMessageType[2];
   strMessageType[1] = 0;
   subvectorBytes(message, 0, 1, strMessageType);
 
-  serialPrint("chegou no receivedMessage: ", 0);
+  printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_MESSAGE_1, 0);
   serialPrint(strMessageType, 1);
   
   int messageType = convertBytesToInt(strMessageType);
@@ -275,11 +166,12 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
   char topic[MESSAGE_BODY_LENGTH - MESSAGE_TOKEN_LENGTH + 1]; // case MESSAGE_TYPE_DATA:
   
   if (DEBUG == 1) {
-    serialPrint("Vai processar a seguinte mensagem: ", 1);
+    printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_MESSAGE_2, 1);
     serialPrint(message, 1);
-    serialPrint("MessageType: ", 0);
+    
+    printConstants(MESSAGE_INDEX_MESSAGE_TYPE, 0);
     serialPrint(strMessageType, 1);
-    serialPrint("Topic: ", 0);
+    printConstants(MESSAGE_INDEX_TOPIC, 0);
     serialPrint(topic, 1);
   }
     
@@ -294,17 +186,18 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
       clearString(brokerIpAddress, 16);
       concatString(brokerIpAddress, originIp, brokerIpAddress);
       brokerIpAddressFound = 1;
+      
       break;
     case MESSAGE_TYPE_DATA:
       proccessDataMessage(message, topic, &value, strValue);
       topic[MESSAGE_TOKEN_LENGTH] = 0;
 
       if (DEBUG == 1) {
-        serialPrint("Recebeu uma mensagem de dados: ", 1);
-        serialPrint("value: ", 0);
+        printConstants(MESSAGE_INDEX_MESSAGE_TYPE, 1);
+        printConstants(MESSAGE_INDEX_VALUE, 0);
         serialPrint(strValue, 1);
 
-        serialPrint("topic: ", 0);
+        printConstants(MESSAGE_INDEX_RECEIVED_TOPIC, 0);
         serialPrint(topic, 1);
       }
       
@@ -312,28 +205,28 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
     case MESSAGE_TYPE_PUBLISH:
       if (DEBUG == 1) {
         //concatString(strLog, "\r\recebeu uma mensagem de publish", strLog);
-        serialPrint("Recebeu uma mensagem de publish", 1);
+        printConstants(MESSAGE_INDEX_PUBLISH_MESSAGE_RECEIVED, 1);
       }
       break;
     case MESSAGE_TYPE_SUBSCRIBE:
       if (DEBUG == 1) {
-        serialPrint("Recebeu uma mensagem de subscribe", 1);
+        printConstants(MESSAGE_INDEX_SUBSCRIBE_MESSAGE_RECEIVED, 1);
       }
       break;
     case MESSAGE_TYPE_KEEP_ALIVE:
       if (DEBUG == 1) {
-        serialPrint("recebeu uma mensagem de keep alive", 1);
+        printConstants(MESSAGE_INDEX_KEEP_ALIVE_MESSAGE_RECEIVED, 1);
       }
       break;
     case MESSAGE_TYPE_HELLO:
       if (DEBUG == 1) {
-        serialPrint("recebeu uma mensagem de hello", 1);
+        printConstants(MESSAGE_INDEX_HELLO_MESSAGE_RECEIVED, 1);
       }
       break;
     case MESSAGE_TYPE_NETWORKS:
       if (DEBUG == 1) {
-        serialPrint("recebeu uma mensagem de network", 1);
-        processWifiConfig(sendData, message, serialPrint);
+        printConstants(MESSAGE_INDEX_NETWORK_MESSAGE_RECEIVED, 1);
+        processWifiConfig(sendData, message, serialPrint, printConstants);
       }
       break;
     case MESSAGE_TYPE_CREDENTIALS_REQUEST:
@@ -343,46 +236,29 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
       break;
     case MESSAGE_TYPE_ERROR:
       if (DEBUG == 1) {
-        serialPrint("recebeu uma mensagem de erro", 1);
+        printConstants(MESSAGE_INDEX_ERROR_MESSAGE_RECEIVED, 1);
       }
       break;
     default:
       if (DEBUG == 1) {
-        serialPrint("recebeu uma mensagem sem um tipo válido", 1);
+        printConstants(MESSAGE_INDEX_MESSAGE_TYPE_UNDEFINED, 1);
       }
       break;
   }
 
-//  free(strMessageType);
-//  free(strValue);
-//  free(topic);
 }
 
-void getBrokerIpAddress(char *ipAddress, serialPrintFunc *serialPrint) {
+void getBrokerIpAddress(char *ipAddress, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
   if (brokerIpAddressFound == 1) {
     clearString(ipAddress, 16);
     concatString("", brokerIpAddress, ipAddress);
   } else if (DEBUG == 1) {
-    serialPrint("Ainda não tem IP", 1);
+    printConstants(MESSAGE_INDEX_IP_NOT_FOUND, 1);
   }
 }
-//
-//int getStartsMessage(char *message) {
-//
-//  int strLength = strlen(message);
-//
-//  int indexReturn = -1;
-//  for (int i = 0; i < strLength; i++) {
-//    char c = message[i];
-//    if (c == ':') {
-//      indexReturn =  i + 1;
-//    }
-//  }
-//
-//  return indexReturn;
-//}
 
-void getMessageBounds(char *message, int *startType, int *endsType, int *startMessage, serialPrintFunc *serialPrint) {
+
+void getMessageBounds(char *message, int *startType, int *endsType, int *startMessage, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
 
   int strLength = strlen(message);
 
@@ -413,8 +289,6 @@ void getMessageBounds(char *message, int *startType, int *endsType, int *startMe
     }
     
   }
-
-
 
   *(startType) = plusIndex;
   *(endsType) = commaIndex;

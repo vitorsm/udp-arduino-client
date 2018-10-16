@@ -22,10 +22,11 @@ char password[MESSAGE_PASSWORD_LENGTH];
 
 typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 typedef void (serialPrintFunc)(char *message, int isPrintln);
+typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
 
 void moduleReset(sendDataFunc *sendData);
 
-int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrintFunc *serialPrint);
+int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
 
 int setStationMode(sendDataFunc *sendData);
 
@@ -56,5 +57,6 @@ int sendHelloMessage(sendDataFunc *sendData);
 int sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port);
 
 void setCredentials(char *assetId, char *password);
+
 
 #endif /* ESPUTILS_H_ */

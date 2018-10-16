@@ -22,6 +22,7 @@ void initDigitalControl() {
     sampleTime[i] = 0;
     conditions[i] = NULL;
     inputIndexControl[i] = -1;
+    lastTimeSendInputs[0];
   }
 
   for (int i = 0; i < MAX_AMOUNT_INPUT; i++) {
@@ -48,13 +49,20 @@ void digitalControl(float *ports) {
 
   for (int i = 0; i < PORTS_AMOUNT; i++) {
 
-    // verifica se a porta é de saída
-    if (typeIO[i] == 1) {
+    // verifica se a porta é de saída binária ou PID
+    if (typeIO[i] == 1 || typeIO[i] == 2) {
       // verifica se ta ligado
       if (computeCondition(i) == 1) {
-        float output = computePID(i);
+        float output = 0;
+        // verifica se a porta é de saída binária
+        if (typeIO[i] == 2)
+          output = 1;
+        else
+          output = computePID(i);
+        
         if (output >= 0)
           ports[i] = output;
+          
       } else {
         ports[i] = 0;
       }
@@ -176,3 +184,14 @@ int verifyCondition(char operation, float conditionValue, float inputValue) {
   }
 }
 
+int sendInputValue(sendDataFunc *sendData, int inputId, float value) {
+
+  char topic[5];
+  char strValue[5];
+
+  convertIntToBytes(inputId, topic, 5);
+  convertFloatToBytes(value, strValue, 5);
+    
+///  buildMessagePublish(topic, char *token, float value, int isIntValue, char *message)
+  
+}

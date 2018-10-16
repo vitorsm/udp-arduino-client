@@ -47,7 +47,7 @@ void processResponseListAPs(sendDataFunc *sendData, char *command) {
   // implementar o build message networks information
 }
 
-void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *serialPrint) {
+void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
 
   int commandSize = strlen(command);
 
@@ -67,60 +67,43 @@ void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *s
   clearString(password, commandSize);
  
   if (DEBUG == 1) {
-    serialPrint("Vai iniciar o processWifiConfig com: ", 1);
+    printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_1, 1);
     serialPrint(command, 1);
   }
   
-  getDataWifiConfig(command, ssid, netMacAddress, passwordWifi, id, password, serialPrint);
+  getDataWifiConfig(command, ssid, netMacAddress, passwordWifi, id, password, serialPrint, printConstants);
 
   if (DEBUG == 1) {
-    serialPrint("SSID: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_SSID, 0);
     serialPrint(ssid, 1);
 
-    serialPrint("MACAddress: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_MAC, 0);
     serialPrint(netMacAddress, 1);
 
-    serialPrint("PassWifi: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_PASS_W, 0);
     serialPrint(passwordWifi, 1);
 
-    serialPrint("LoginToken: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_LOGIN, 0);
     serialPrint(id, 1);
     
-    serialPrint("PassToken: ", 0);
+    printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_PASS_L, 0);
     serialPrint(password, 1);
-    
   }
   
   int response = stopTCPServer(sendData, CLIENT_PORT);
 
   // analisar se é possível testar as credenciais de uma rede sem deixar de ser AP
 
-  if (DEBUG == 1) {
-    serialPrint("passou1", 1);  
-  }
-  
   if (response == 1) {
     response = stopAccessPoint(sendData);
   }
-
-  if (DEBUG == 1) {
-    serialPrint("passou2", 1);  
-  }
   
   if (response == 1) {
-    response = connectToWifi(sendData, ssid, passwordWifi, serialPrint);
-  }
-
-  if (DEBUG == 1) {
-    serialPrint("passou3", 1);  
+    response = connectToWifi(sendData, ssid, passwordWifi, serialPrint, printConstants);
   }
   
   if (response == 1) {
     response = startServer(sendData);
-  }
-
-  if (DEBUG == 1) {
-    serialPrint("passou4", 1);  
   }
   
   setCredentials(id, password);
@@ -128,83 +111,16 @@ void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *s
   if (response == 0) {
     // se tiver um lcd mostrar aqui que a autenticação falhou
     if (DEBUG == 1) {
-      serialPrint("deu ruim", 1);  
+      printConstants(MESSAGE_INDEX_ERROR, 1);  
     }
   }
 }
 
-//void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password) {
-//  int commaCount = 0;
-//  int emptyCharCount = 0;
-//  int startGet = 0;
-//  int wordCount = 0;
-//  int startEmpty = 0;
-//
-//  int commandSize = strlen(command);
-//  
-//  for (int i = 0; i < commandSize; i++) {
-//    char c = command[i];
-//
-//    if (c == EMPTY_CHAR) {
-//      startEmpty = 1;
-//      emptyCharCount++;
-//      wordCount = 0;
-//    } else if (startEmpty) {
-//
-//      if (c == EMPTY_CHAR) {
-//        emptyCharCount++;
-//        wordCount = 0;
-//      } else if (emptyCharCount == 1) {
-//        passwordWifi[wordCount] = c;
-//        wordCount++;
-//      } else if (emptyCharCount == 2) {
-//        id[wordCount] = c;
-//        wordCount++;
-//      } else if (emptyCharCount == 3) {
-//        password[wordCount] = c;
-//        wordCount++;
-//      }
-//    } else if (startGet == 0 && c == ',') {
-//      commaCount++;
-//    } else {
-//      
-//      if (commaCount == 1) {
-//        // Verificar se ja pegou a aspas, pq não faz parte do ssid
-//        if (startGet == 0) {
-//          startGet = 1;
-//        } else {
-//          if (c == '"') {
-//            startGet = 0;
-//            wordCount = 0;
-//          } else {
-//            ssid[wordCount] = c;
-//            wordCount++;
-//          }
-//        }
-//        
-//      } else if (commaCount == 3) {
-//        // Verificar se ja pegou a aspas, pq não faz parte do ssid
-//        if (startGet == 0) {
-//          startGet = 1;
-//        } else {
-//          if (c == '"') {
-//            startGet = 0;
-//            wordCount = 0;
-//          } else {
-//            netMacAddress[wordCount] = c;
-//            wordCount++;
-//          }
-//        }
-//      }
-//    }
-//  }
-//}
-
-void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password, serialPrintFunc *serialPrint) {
+void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
   int emptyCharCount = 0;
 
   if (DEBUG == 1) {
-    serialPrint("getDataWifiConfig: ", 1);
+    printConstants(MESSAGE_INDEX_DATA_WIFI_CONFIG, 1);
     serialPrint(command, 1);
   }
   int commandSize = strlen(command);

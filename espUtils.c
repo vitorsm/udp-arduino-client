@@ -14,7 +14,7 @@ void moduleReset(sendDataFunc *sendData) {
   
 }
 
-int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrintFunc *serialPrint) {
+int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
   char *part1 = "AT+CWJAP=\"";
   char *part2 = "\",\"";
   char *part3 = "\"";
@@ -31,15 +31,7 @@ int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrin
   concatString(command, part3, command);
   command[charSize] = 0;
   
-  //sendData("AT+CWJAP=\"2.4Ghz Virtua 302\",\"3207473600\"", DEFAULT_TIMEOUT * 2, DEBUG);
-//  serialPrint("cw:", 1);
-//  serialPrint(command, 1);
-  
   int response = sendData(command, DEFAULT_TIMEOUT * 2, DEBUG, MAXIMUM_ATTEMPTS);
-//  free(part1);
-//  free(part2);
-//  free(part3);
-//  free(command);
   
   return response;
 }
@@ -77,10 +69,6 @@ int startServer(sendDataFunc *sendData) {
   charCommand[charSize] = 0;
   
   int response = sendData(charCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
-
-//  free(part1);
-//  free(part2);
-//  free(charCommand);
   
   return response;
 }
@@ -88,12 +76,9 @@ int startServer(sendDataFunc *sendData) {
 int startAccessPoint(sendDataFunc *sendData, char *ssid) {
 
     char *part1 = "AT+CWSAP_CUR=\"";
-    //char *part2 = "\",\"\",";
     char *part2 = "\",\"senha\",";
     char *part3 = ",";
     char *part4 = ",1,0";
-
-    //AT+CWSAP_CUR="Nome rede",,1⸮
 
     char channelAP[2];
     char encryptionModeAP[2];
@@ -114,22 +99,11 @@ int startAccessPoint(sendDataFunc *sendData, char *ssid) {
 
     strCommand[charSize] = 0;
     
-//    int resp = sendData(strCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 //    //analisar se precisa de um delay
-//    if (resp == 1)
-//      resp = sendData("AT+CWMODE_CUR=2", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 
     int resp = sendData("AT+CWMODE_CUR=2", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
     if (resp == 1)
       resp = sendData(strCommand, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
-
-//    free(part1);
-//    free(part2);
-//    free(part3);
-//    free(part4);
-//    free(strCommand);
-//    free(channelAP);
-//    free(encryptionModeAP);
     
     return resp;
 }
@@ -226,4 +200,6 @@ void setCredentials(char *_assetId, char *_password) {
     password[i] = _password[i];
   }
 }
+
+
 

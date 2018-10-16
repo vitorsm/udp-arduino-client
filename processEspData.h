@@ -16,13 +16,14 @@ typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxA
 int brokerIpAddressFound;
 char brokerIpAddress[16];
 typedef void (serialPrintFunc)(char *message, int isPrintln);
+typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
 
-void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint);
-void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, char *ipAddress, int *port, serialPrintFunc *serialPrint);
-void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, serialPrintFunc *serialPrint);
-void getBrokerIpAddress(char *ipAddress, serialPrintFunc *serialPrint);
+void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
+void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, char *ipAddress, int *port, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
+void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
+void getBrokerIpAddress(char *ipAddress, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
 //int getStartsMessage(char *message);
-void getMessageBounds(char *message, int *startType, int *endsType, int *startMessage, serialPrintFunc *serialPrint);
+void getMessageBounds(char *message, int *startType, int *endsType, int *startMessage, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
 
 
 #endif /* PROCESSESPDATA_H_ */
