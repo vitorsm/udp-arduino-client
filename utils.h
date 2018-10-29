@@ -12,9 +12,9 @@
 #define UTILS_H_
 
 struct Condition {
-  int inputId;
-  char operation;
-  float value;
+  int inputId; // 3 bytes
+  char operation; // 1 byte
+  float value; // 8 bytes
   struct Condition *next;
 };
 

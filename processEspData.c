@@ -186,7 +186,8 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
       clearString(brokerIpAddress, 16);
       concatString(brokerIpAddress, originIp, brokerIpAddress);
       brokerIpAddressFound = 1;
-      
+
+      setParams(message);
       break;
     case MESSAGE_TYPE_DATA:
       proccessDataMessage(message, topic, &value, strValue);

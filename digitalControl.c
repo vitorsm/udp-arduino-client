@@ -20,7 +20,12 @@ void initDigitalControl() {
     kd[i] = 0;
     typeIO[0] = -1;
     sampleTime[i] = 0;
-    conditions[i] = NULL;
+    
+    conditions[i] = malloc(sizeof(struct  Condition));
+    conditions[i]->inputId = -1;
+
+    pinsId[i] = -1;
+    
     inputIndexControl[i] = -1;
     lastTimeSendInputs[0];
   }
@@ -105,7 +110,7 @@ int computeCondition(int portNumber) {
   
   struct Condition *condition = conditions[portNumber];
 
-  if (condition == NULL) 
+  if (condition->inputId < 0) 
     return 1;
     
   int indexInput = getIndexInputById(condition->inputId);
@@ -117,7 +122,7 @@ int computeCondition(int portNumber) {
 
   int response = verifyCondition(condition->operation, condition->value, input->value);
 
-  while (response == 1 && condition->next != NULL) {
+  while (response == 1 && condition->next->inputId >= 0) {
     
     condition = condition->next;
     
@@ -184,6 +189,10 @@ int verifyCondition(char operation, float conditionValue, float inputValue) {
   }
 }
 
+int sendInputValues(sendDataFunc *sendData) {
+  
+}
+
 int sendInputValue(sendDataFunc *sendData, int inputId, float value) {
 
   char topic[5];
@@ -195,3 +204,11 @@ int sendInputValue(sendDataFunc *sendData, int inputId, float value) {
 ///  buildMessagePublish(topic, char *token, float value, int isIntValue, char *message)
   
 }
+
+void setParams(char *message) {
+
+  char token[MESSAGE_TOKEN_LENGTH];
+  proccessRuleMessage(token, conditions, pinsId, typeIO, sampleTime, kp, ki, kd, setPoint, message);
+
+}
+

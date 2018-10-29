@@ -11,6 +11,7 @@
 #include "utils.h"
 #include "constants.h"
 #include "accessPoint.h"
+#include "digitalControl.h"
 
 typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 int brokerIpAddressFound;

@@ -29,6 +29,7 @@ float kd[PORTS_AMOUNT];
 char typeIO[PORTS_AMOUNT]; //byte: 0: input, 1: PID_output, 2: binary_output, 3: pulse_output
 unsigned long sampleTime[PORTS_AMOUNT];
 struct Condition *conditions[PORTS_AMOUNT];
+int pinsId[PORTS_AMOUNT];
 
 unsigned long lastTimeSendInputs[PORTS_AMOUNT];
 
@@ -48,6 +49,10 @@ int computeCondition(int portNumber);
 int getIndexInputById(int id);
 
 int verifyCondition(char operation, float conditionValue, float inputValue);
+
+void setParams(char *message);
+
+void setInput(char *message);
 
 int sendInputValues(sendDataFunc *sendData);
 

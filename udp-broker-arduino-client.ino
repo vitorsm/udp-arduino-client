@@ -6,15 +6,21 @@
 #include "accessPoint.c"
 #include "processEspData.c"
 #include "digitalControl.c"
+//Carrega a biblioteca LiquidCrystal
+#include <LiquidCrystal.h>
+
+//Define os pinos que serão utilizados para ligação ao display
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
 
 char brokerIp[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int connectionId = 0;
 long lastRequestBroker = 0;
+int lengthTextLcd = 0;
 
 
-
-SoftwareSerial esp8266(2, 3);
+SoftwareSerial esp8266(8, 9);
 
 void setup() {
 
@@ -23,18 +29,34 @@ void setup() {
   
   moduleReset(sendData);
   //connectToWifi(sendData, "2.4Ghz Virtua 302", "3207473600");
+
+  lcd.begin(16, 2);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Iniciando setup");
   
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 8; i++) {
     delay(100);  
     Serial.print(".");
+    lcd.setCursor(i, 1);
+    lcd.print(".");
   }
   Serial.println(".");
     
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 8; i++) {
     delay(100);  
     Serial.print(".");
+    lcd.setCursor(8 + i, 1);
+    lcd.print(".");
   }
   Serial.println(".");
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Iniciando setup");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Configurando ESP");
   
   setMultipleConnections(sendData);
   enableShowRemoteIp(sendData);
@@ -45,17 +67,26 @@ void setup() {
   startAccessPointConfig(sendData);
   showLocalIpAddress(sendData);
 
-  for (int i = 0; i < 100; i++) {
-    delay(100);  
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Iniciando setup");
+  
+  for (int i = 0; i < 16; i++) {
+    delay(300);  
     Serial.print(".");
+    lcd.setCursor(i, 1);
+    lcd.print(".");
   }
 
+  lcd.clear();
   //startServer(sendData);
 
   //Serial.println("Digital Control Init");
   //initDigitalControl();
-  
+  lcd.setCursor(0,0);
+  lcd.print(F("Terminou setup"));
   Serial.println(F("Terminou setup"));
+  
 }
 
 int was = 0;
@@ -221,10 +252,52 @@ const char MESSAGES[countMessages] [countColumnMessages] PROGMEM = {
   { "Ainda não tem IP" }, //MESSAGE_INDEX_IP_NOT_FOUND 35
   { "Vai pegar o IP dessa msg: " } //MESSAGE_INDEX_MESSAGE_TO_IP 36
 };
-    
+
+void printLCDText(char *text, int keepLastText) {
+   if (keepLastText != 1) {
+    lengthTextLcd = 0;
+    lcd.clear();
+   }
+
+  int xPos = 0;
+  int yPos = 0;
+  int strLen = strlen(text);
+
+  if (strLen + lengthTextLcd >= 32 && lengthTextLcd > 0) {
+    lengthTextLcd = 0;
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lengthTextLcd = strLen;
+  } else {
+    if (lengthTextLcd > 16) {
+      yPos = 1;
+      xPos = lengthTextLcd - 16;
+    } else if (strLen + lengthTextLcd > 16) {
+      yPos = 1;
+      xPos = 0;
+    }else {
+      yPos = 0;
+      xPos = lengthTextLcd;
+    }
+    lengthTextLcd += strLen;
+  }
+  
+  lcd.setCursor(xPos, yPos);
+  lcd.print(text);
+}
+
+void printLCD(int messageIndex, int keepLastText) {
+
+ char text[countColumnMessages];
+  if (messageIndex >= countColumnMessages) {
+    memcpy_P(&text,&MESSAGES[0],sizeof text);  
+  } else {
+    memcpy_P(&text,&MESSAGES[messageIndex],sizeof text);
+  }
+  printLCDText(text, keepLastText);
+}
+
 void printConstantsMessage(int messageIndex, int isPrintln) {
-  Serial.print("vai printar o indice: ");
-  Serial.println(messageIndex);
 
   char text[countColumnMessages];
   if (messageIndex >= countColumnMessages) {
@@ -238,4 +311,8 @@ void printConstantsMessage(int messageIndex, int isPrintln) {
   } else {
     Serial.print(text);
   }
+
+//  lcd.clear();
+//  lcd.setCursor(0, 0);
+//  lcd.print(text);
 }

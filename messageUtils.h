@@ -21,8 +21,17 @@ int getMessageType(char *message);
 
 void proccessDataMessage(char *message, char *topic, float *value, char *strValue);
 
-void proccessRuleMessage(char *token, struct Condition *conditions, int *inputType, unsigned long *sampleTime, float *kp, float *ki, float *kd, char *message);
+void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, char *typeIO, unsigned long *sampleTime, float *kp, float *ki, float *kd, float *setPoints, char *message);
 
 void removeEmptyChar(char *str, int size);
+
+float getKParam(int startIndex, int endIndex, char *message);
+
+int getSampleTime(int startIndex, int endIndex, char *message);
+
+
+int getNextEmptyChar(char *txt, int startIndex);
+
+int getNextConditionSeparator(char *txt, int startIndex);
 
 #endif /* MESSAGEUTILS_H_ */
