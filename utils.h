@@ -23,6 +23,7 @@ struct Input {
   float value;
 };
 
+
 /***
  * Convert from integer value to byte array as a string
  */

@@ -47,7 +47,7 @@ void processResponseListAPs(sendDataFunc *sendData, char *command) {
   // implementar o build message networks information
 }
 
-void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
+void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD) {
 
   int commandSize = strlen(command);
 
@@ -61,17 +61,17 @@ void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *s
   clearString(passwordWifi, commandSize);
   
   char id[CLIENT_ID_LENGTH];
-  clearString(id, commandSize);
+  clearString(id, CLIENT_ID_LENGTH);
   
   char password[CLIENT_PASSWORD_LENGTH];
-  clearString(password, commandSize);
- 
+  clearString(password, CLIENT_PASSWORD_LENGTH);
+  
   if (DEBUG == 1) {
     printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_1, 1);
     serialPrint(command, 1);
   }
   
-  getDataWifiConfig(command, ssid, netMacAddress, passwordWifi, id, password, serialPrint, printConstants);
+  getDataWifiConfig(command, ssid, netMacAddress, passwordWifi, id, password, serialPrint, printConstants, printLCD);
 
   if (DEBUG == 1) {
     printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_SSID, 0);
@@ -91,34 +91,53 @@ void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *s
   }
   
   int response = stopTCPServer(sendData, CLIENT_PORT);
-
+  serialPrint("1", 1);
   // analisar se é possível testar as credenciais de uma rede sem deixar de ser AP
 
   if (response == 1) {
     response = stopAccessPoint(sendData);
   }
+
+  serialPrint("2", 1);
   
   if (response == 1) {
     response = connectToWifi(sendData, ssid, passwordWifi, serialPrint, printConstants);
   }
+
+  serialPrint("3", 1);
   
   if (response == 1) {
     response = startServer(sendData);
   }
+
+  serialPrint("4", 1);
   
   setCredentials(id, password);
   
   if (response == 0) {
+    serialPrint("ruim", 1);
     // se tiver um lcd mostrar aqui que a autenticação falhou
     if (DEBUG == 1) {
-      printConstants(MESSAGE_INDEX_ERROR, 1);  
+      printConstants(MESSAGE_INDEX_ERROR, 1);
+      printLCD(MESSAGE_INDEX_ERROR, 0);
+      printLCD(MESSAGE_INDEX_NEW_ATTEMPT, 1);
+
+      delay(3000);
+      processWifiConfig(sendData, command, serialPrint, printConstants, printLCD);
     }
+  } else {
+    serialPrint("bom", 1);
+    printLCD(MESSAGE_INDEX_CONNECTED, 1);
+    wifiConnected = 1;
   }
 }
 
-void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
+void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD) {
   int emptyCharCount = 0;
-
+  
+  printLCD(MESSAGE_INDEX_GET_CREDENTIALS_1, 0);
+  printLCD(MESSAGE_INDEX_GET_CREDENTIALS_2, 1);
+  
   if (DEBUG == 1) {
     printConstants(MESSAGE_INDEX_DATA_WIFI_CONFIG, 1);
     serialPrint(command, 1);
@@ -159,8 +178,6 @@ void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *pas
         password[wordCount] = 0;
       }
     }
-  }
-
-  
+  }  
 }
 

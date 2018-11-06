@@ -7,7 +7,7 @@
 
 #include "processEspData.h"
 
-void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
+void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD) {
 
   int startMessage = 0;
   int startType = 0;
@@ -16,11 +16,14 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
   getMessageBounds(data, &startType, &endsType, &startMessage, serialPrint, printConstants);
   
   //int startMessage = getStartsMessage(data);
-
+  printLCD(MESSAGE_INDEX_RECEIVED_MESSAGE, 0);
+  
   if (DEBUG == 1) {
     char strStartMessage[4];
     char strStartType[4];
     char strEndsType[4];
+
+    printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_MESSAGE_2, 0);
 
     convertIntToBytes(startMessage, strStartMessage, 4);
     convertIntToBytes(startType, strStartType, 4);
@@ -96,7 +99,7 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
           serialPrint(message, 1);
         }
 
-        proccessReceivedMessage(sendData, message, ipAddress, port, serialPrint, printConstants);
+        proccessReceivedMessage(sendData, message, ipAddress, port, serialPrint, printConstants, printLCD);
       }
 
     } else if (DEBUG == 1) {
@@ -152,7 +155,7 @@ void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, 
   *port = convertBytesToInt(portStr);
 }
 
-void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
+void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD) {
  
   char strMessageType[2];
   strMessageType[1] = 0;
@@ -227,7 +230,7 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
     case MESSAGE_TYPE_NETWORKS:
       if (DEBUG == 1) {
         printConstants(MESSAGE_INDEX_NETWORK_MESSAGE_RECEIVED, 1);
-        processWifiConfig(sendData, message, serialPrint, printConstants);
+        processWifiConfig(sendData, message, serialPrint, printConstants, printLCD);
       }
       break;
     case MESSAGE_TYPE_CREDENTIALS_REQUEST:

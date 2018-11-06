@@ -20,10 +20,13 @@ long lastRequestBroker = 0;
 int lengthTextLcd = 0;
 
 
+int showWait = 0;
+
 SoftwareSerial esp8266(8, 9);
 
 void setup() {
-
+  wifiConnected = 0;
+  
   Serial.begin(9600);
   esp8266.begin(19200);
   
@@ -86,10 +89,17 @@ void setup() {
   lcd.setCursor(0,0);
   lcd.print(F("Terminou setup"));
   Serial.println(F("Terminou setup"));
-  
-}
 
-int was = 0;
+  delay(1000);
+
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(F("Nome rede wifi:"));
+  
+  lcd.setCursor(0,1);
+  lcd.print(WIFI_SSID);
+
+}
 
 void loop() {
   
@@ -107,7 +117,7 @@ void loop() {
     }
     
     char strMessage[message.length() + 1];
-    //message.toCharArray(strMessage, message.length() + 1);
+
     convertStringToChar(message, strMessage);
 
     if (DEBUG == 1) {
@@ -116,14 +126,28 @@ void loop() {
       Serial.println("---------------------------------------------------");
     }
     
-    proccessReceivedData(sendData, strMessage, serialPrint, printConstantsMessage);
-
+    proccessReceivedData(sendData, strMessage, serialPrint, printConstantsMessage, printLCD);
   }
 
-//  if (was == 0) {
-//    was = 1;
-//    listAPs(sendData);
-//  }
+  // o módulo já está conectado a uma rede wifi
+  if (wifiConnected == 1) {
+    // o módulo ainda não sabe quem é o broker
+    if (brokerIpAddressFound == 0) {
+      long curTime = millis();
+      if (curTime - lastRequestBroker > TIME_REQUEST_HELLO) {
+        lastRequestBroker = curTime;
+        printLCDText("Enviando hello", 0);
+        sendHelloMessage(sendData, serialPrint, printLCD);
+        showWait = 1;
+      } else if (showWait == 1) {
+        showWait = 0;
+        printLCDText("aguardando...", 1);
+      }
+    } else {
+      // enviar dados e tals
+    }
+  }
+  
 }
 
 int sendData(char *command, const int timeout, int debug, int maxAttempts) {
@@ -163,13 +187,12 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
     }
 
     if (DEBUG == 1) {
+      Serial.println(F("resposta do esp: "));
       Serial.print(response);
     }
   
     if (response.indexOf("OK") > 0 || response.indexOf("busy")) {
       okCommand = 1;
-//    } else if(response.indexOf("busy") > 0) {
-//      okCommand = 2;
     } else {
       okCommand = 0;
     }
@@ -210,7 +233,7 @@ void serialPrint(char *msg, int isPrintln) {
   }
 }
 
-const int countMessages = 37;
+const int countMessages = 42;
 const int countColumnMessages = 75;
 
 const char MESSAGES[countMessages] [countColumnMessages] PROGMEM = {
@@ -250,7 +273,12 @@ const char MESSAGES[countMessages] [countColumnMessages] PROGMEM = {
   { "Recebeu uma mensagem de erro" }, //MESSAGE_INDEX_ERROR_MESSAGE_RECEIVED 33
   { "Recebeu uma mensagem sem um tipo válido" }, //MESSAGE_INDEX_MESSAGE_TYPE_UNDEFINED 34
   { "Ainda não tem IP" }, //MESSAGE_INDEX_IP_NOT_FOUND 35
-  { "Vai pegar o IP dessa msg: " } //MESSAGE_INDEX_MESSAGE_TO_IP 36
+  { "Vai pegar o IP dessa msg: " }, //MESSAGE_INDEX_MESSAGE_TO_IP 36
+  { "Obtendo os dados" }, //MESSAGE_INDEX_GET_CREDENTIALS_1 37
+  { "Mensagem recebid" }, //MESSAGE_INDEX_RECEIVED_MESSAGE 38
+  { "de credenciais" }, //MESSAGE_INDEX_GET_CREDENTIALS_2 39
+  { "nova tent em 3s" }, //MESSAGE_INDEX_NEW_ATTEMPT 40
+  { "Conectado" } //MESSAGE_INDEX_CONNECTED 41
 };
 
 void printLCDText(char *text, int keepLastText) {
@@ -294,6 +322,7 @@ void printLCD(int messageIndex, int keepLastText) {
   } else {
     memcpy_P(&text,&MESSAGES[messageIndex],sizeof text);
   }
+  
   printLCDText(text, keepLastText);
 }
 

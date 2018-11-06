@@ -14,6 +14,7 @@
 
 typedef void (serialPrintFunc)(char *message, int isPrintln);
 typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
+typedef void (printLCDFunc)(int messageIndex, int keepLastText);
 typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 
 unsigned long lastTimeChange[PORTS_AMOUNT];

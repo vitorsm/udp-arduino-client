@@ -22,6 +22,7 @@ char password[MESSAGE_PASSWORD_LENGTH];
 
 typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 typedef void (serialPrintFunc)(char *message, int isPrintln);
+typedef void (printLCDFunc)(int messageIndex, int keepLastText);
 typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
 
 void moduleReset(sendDataFunc *sendData);
@@ -52,11 +53,13 @@ int listAPs(sendDataFunc *sendData);
 
 //Criar um arquivo para tratar de conversas com a rede de nos
 
-int sendHelloMessage(sendDataFunc *sendData);
+int sendHelloMessage(sendDataFunc *sendData, serialPrintFunc *serialPrint, printLCDFunc *printLCD);
 
-int sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port);
+int sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port, printLCDFunc *printLCD, serialPrintFunc *serialPrint);
 
 void setCredentials(char *assetId, char *password);
+
+int prepareToSendUdpMessage(sendDataFunc *sendData, char *addressIp, int port, int messageSize, printLCDFunc *printLCD, serialPrintFunc *serialPrint);
 
 
 #endif /* ESPUTILS_H_ */
