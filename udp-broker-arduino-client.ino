@@ -167,13 +167,22 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
 
     int ok = 0;
     long int time = millis();
+    char lastChar = 0;
+    int okFound = 0;
     while ( (time + timeout) > millis()) {
-  
       while (esp8266.available()) {
         char c = esp8266.read(); // read the next character.
         response += c;
+        if ((lastChar == 'O' || lastChar == 'o') && (c == 'K' || c == 'k')) {
+          Serial.println("achou um ok");
+          okFound = 1;
+          break;
+        }
+        lastChar = c;
         //ok = 1;
       }
+      if (okFound == 1)
+        break;
 
 //      if ((response.indexOf("+") > 0 || response.indexOf("OK") > 0) && response.length() > 1) {
 //        ok = 1;
@@ -189,9 +198,10 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
     if (DEBUG == 1) {
       Serial.println(F("resposta do esp: "));
       Serial.print(response);
+      Serial.println(F("\r\nfim da resposta do esp: "));
     }
   
-    if (response.indexOf("OK") > 0 || response.indexOf("busy")) {
+    if (response.indexOf("OK") > 0 || response.indexOf("busy") || okFound == 1) {
       okCommand = 1;
     } else {
       okCommand = 0;

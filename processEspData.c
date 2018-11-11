@@ -82,8 +82,9 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
           //printar os dados recebidos
           printConstants(MESSAGE_INDEX_IP_ADDRESS, 0);
           serialPrint(ipAddress, 1);
-          char strPort[6];
-          convertIntToBytes(port, strPort, 6);
+          char strPort[7];
+          clearString(strPort, 7);
+          convertIntToBytes(port, strPort, 7);
           
           printConstants(MESSAGE_INDEX_PORT, 0);
           serialPrint(strPort, 1);
@@ -149,25 +150,39 @@ void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, 
       countStr++;
     }
   }
+
+  
   
   *connectionId = convertBytesToInt(connectionIdStr);
   *messageLength = convertBytesToInt(messageLengthStr);
   *port = convertBytesToInt(portStr);
+
+  char portStrTeste[] = {0, 0, 0, 0, 0, 0, 0, 0};
+  convertIntToBytes(*port, portStrTeste, 8);
+  serialPrint(portStrTeste, 0);
 }
 
 void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD) {
- 
+
+  serialPrint(message, 1);
+  
   char strMessageType[2];
   strMessageType[1] = 0;
+  serialPrint(message, 1);
   subvectorBytes(message, 0, 1, strMessageType);
-
+  serialPrint(message, 1);
+  
   printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_MESSAGE_1, 0);
   serialPrint(strMessageType, 1);
+
+  serialPrint(message, 1);
   
   int messageType = convertBytesToInt(strMessageType);
 
+  serialPrint(message, 1);
   char topic[MESSAGE_BODY_LENGTH - MESSAGE_TOKEN_LENGTH + 1]; // case MESSAGE_TYPE_DATA:
-  
+
+  serialPrint(message, 1);
   if (DEBUG == 1) {
     printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_MESSAGE_2, 1);
     serialPrint(message, 1);
@@ -177,20 +192,26 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
     printConstants(MESSAGE_INDEX_TOPIC, 0);
     serialPrint(topic, 1);
   }
-    
+  
   float value = 12; //case MESSAGE_TYPE_DATA:
   char strValue[15]; //case MESSAGE_TYPE_DATA:
   switch (messageType) {
     case MESSAGE_TYPE_UPDATE_PARAM:
       if (DEBUG == 1) {
         //concatString(strLog, "\r\recebeu uma mensagem de atualizacao de parametros", strLog);
-        //serialPrint("Recebeu uma mensagem de atualizacao de parametros", 1);
+        serialPrint("Recebeu uma mensagem de atualizacao de parametros", 1);
+        serialPrint(message, 1);
       }
+      serialPrint("1", 1);
       clearString(brokerIpAddress, 16);
+      serialPrint("1", 1);
       concatString(brokerIpAddress, originIp, brokerIpAddress);
+      serialPrint("1", 1);
       brokerIpAddressFound = 1;
+      serialPrint("1", 1);
 
       setParams(message);
+      serialPrint("1", 1);
       break;
     case MESSAGE_TYPE_DATA:
       proccessDataMessage(message, topic, &value, strValue);
