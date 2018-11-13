@@ -16,7 +16,7 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
   getMessageBounds(data, &startType, &endsType, &startMessage, serialPrint, printConstants);
   
   //int startMessage = getStartsMessage(data);
-  printLCD(MESSAGE_INDEX_RECEIVED_MESSAGE, 0);
+  //printLCD(MESSAGE_INDEX_RECEIVED_MESSAGE, 0);
   
   if (DEBUG == 1) {
     char strStartMessage[4];

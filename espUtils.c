@@ -164,7 +164,7 @@ int listAPs(sendDataFunc *sendData) {
 
 int sendHelloMessage(sendDataFunc *sendData, serialPrintFunc *serialPrint, printLCDFunc *printLCD) {
 
-  char address[15];
+  char address[16];
   getNetworkAddress(sendData, address);
 
   if (DEBUG == 1) {
@@ -208,13 +208,14 @@ void getNetworkAddress(sendDataFunc *sendData, char *address) {
   address[5] = '6';
   address[6] = '8';
   address[7] = '.';
-  address[8] = '4';
-  address[9] = '3';
-  address[10] = '.';
-  address[11] = '2';
-  address[12] = '5';
+  address[8] = '0';
+  address[9] = '0';
+  address[10] = '0';
+  address[11] = '.';
+  address[12] = '2';
   address[13] = '5';
-  address[14] = 0;
+  address[14] = '5';
+  address[15] = 0;
 }
 
 void setCredentials(char *_assetId, char *_password) {
