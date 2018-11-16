@@ -186,7 +186,9 @@ int sendHelloMessage(sendDataFunc *sendData, serialPrintFunc *serialPrint, print
 
 int sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port, printLCDFunc *printLCD, serialPrintFunc *serialPrint) {
   int response = prepareToSendUdpMessage(sendData, ipAddress, port, strlen(message), printLCD, serialPrint);
-
+  char c = response + 48;
+  char responseStr[] = { 'r', 'e', 's', ':', ' ', c, 0};
+  
   if (response == 1)
     response = sendData(message, DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 
@@ -200,6 +202,23 @@ int sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port
 }
 
 void getNetworkAddress(sendDataFunc *sendData, char *address) {
+//  address[0] = '1';
+//  address[1] = '9';
+//  address[2] = '2';
+//  address[3] = '.';
+//  address[4] = '1';
+//  address[5] = '6';
+//  address[6] = '8';
+//  address[7] = '.';
+//  address[8] = '0';
+//  address[9] = '4';
+//  address[10] = '3';
+//  address[11] = '.';
+//  address[12] = '2';
+//  address[13] = '5';
+//  address[14] = '5';
+//  address[15] = 0;
+
   address[0] = '1';
   address[1] = '9';
   address[2] = '2';
@@ -208,13 +227,13 @@ void getNetworkAddress(sendDataFunc *sendData, char *address) {
   address[5] = '6';
   address[6] = '8';
   address[7] = '.';
-  address[8] = '0';
-  address[9] = '0';
-  address[10] = '0';
-  address[11] = '.';
-  address[12] = '2';
+  address[8] = '4';
+  address[9] = '3';
+  address[10] = '.';
+  address[11] = '2';
+  address[12] = '5';
   address[13] = '5';
-  address[14] = '5';
+  address[14] = 0;
   address[15] = 0;
 }
 

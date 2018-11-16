@@ -18,7 +18,7 @@ char brokerIp[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int connectionId = 0;
 long lastRequestBroker = 0;
 int lengthTextLcd = 0;
-
+int sendingHello = 0;
 
 int showWait = 0;
 
@@ -131,12 +131,17 @@ void loop() {
 
   // o módulo já está conectado a uma rede wifi
   if (wifiConnected == 1) {
+    if (sendingHello == 0) {
+      sendingHello = 1;
+      printLCDText(F("Conectado"), 0);
+      printLCDText(F("modo controle"), 1);
+    }
     // o módulo ainda não sabe quem é o broker
     if (brokerIpAddressFound == 0) {
       long curTime = millis();
       if (curTime - lastRequestBroker > TIME_REQUEST_HELLO) {
         lastRequestBroker = curTime;
-        printLCDText("Enviando hello", 0);
+        printLCDText(F("Enviando hello"), 0);
         sendHelloMessage(sendData, serialPrint, printLCD);
         showWait = 1;
       } else if (showWait == 1) {
@@ -169,20 +174,20 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
     long int time = millis();
     char lastChar = 0;
     int okFound = 0;
-    while ( (time + timeout) > millis()) {
+    while ( (time + timeout) > millis() && okFound != 1) {
       while (esp8266.available()) {
         char c = esp8266.read(); // read the next character.
         response += c;
         if ((lastChar == 'O' || lastChar == 'o') && (c == 'K' || c == 'k')) {
-          Serial.println("achou um ok");
+          Serial.println("encontrou ok");
           okFound = 1;
           break;
         }
         lastChar = c;
         //ok = 1;
       }
-      if (okFound == 1)
-        break;
+//      if (okFound == 1)
+//        break;
 
 //      if ((response.indexOf("+") > 0 || response.indexOf("OK") > 0) && response.length() > 1) {
 //        ok = 1;
@@ -207,6 +212,8 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
       okCommand = 0;
     }
   }
+
+//  delay(1000);
   
   return okCommand;
 }

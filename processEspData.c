@@ -182,6 +182,10 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
   serialPrint(message, 1);
   char topic[MESSAGE_BODY_LENGTH - MESSAGE_TOKEN_LENGTH + 1]; // case MESSAGE_TYPE_DATA:
 
+
+  float value = 12; //case MESSAGE_TYPE_DATA:
+  char strValue[15]; //case MESSAGE_TYPE_DATA:
+  
   serialPrint(message, 1);
   if (DEBUG == 1) {
     printConstants(MESSAGE_INDEX_PROCESS_RECEIVED_MESSAGE_2, 1);
@@ -193,8 +197,6 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
     serialPrint(topic, 1);
   }
   
-  float value = 12; //case MESSAGE_TYPE_DATA:
-  char strValue[15]; //case MESSAGE_TYPE_DATA:
   switch (messageType) {
     case MESSAGE_TYPE_UPDATE_PARAM:
       if (DEBUG == 1) {
@@ -202,16 +204,13 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
         serialPrint("Recebeu uma mensagem de atualizacao de parametros", 1);
         serialPrint(message, 1);
       }
-      serialPrint("1", 1);
+
       clearString(brokerIpAddress, 16);
-      serialPrint("1", 1);
       concatString(brokerIpAddress, originIp, brokerIpAddress);
-      serialPrint("1", 1);
       brokerIpAddressFound = 1;
-      serialPrint("1", 1);
 
       setParams(message);
-      serialPrint("1", 1);
+
       break;
     case MESSAGE_TYPE_DATA:
       proccessDataMessage(message, topic, &value, strValue);

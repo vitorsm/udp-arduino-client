@@ -210,7 +210,7 @@ void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, c
         indexMessage += 1;
   
         char strValue[MESSAGE_VALUE_LENGTH + 1];
-        subvectorBytes(message, indexMessage, indexMessage + MESSAGE_VALUE_LENGTH, strInputId);
+        subvectorBytes(message, indexMessage, indexMessage + MESSAGE_VALUE_LENGTH, strValue);
         strValue[MESSAGE_VALUE_LENGTH] = 0;
   
         indexMessage += MESSAGE_VALUE_LENGTH;
@@ -257,7 +257,7 @@ int getSampleTime(int startIndex, int endIndex, char *message) {
 
   char strValue[endIndex - startIndex + 1];
   subvectorBytes(message, startIndex, endIndex, strValue);
-  strValue[endIndex - startIndex + 1] = 0;
+  strValue[endIndex - startIndex] = 0;
 
   return convertBytesToInt(strValue);
 }
@@ -266,7 +266,7 @@ float getKParam(int startIndex, int endIndex, char *message) {
   
   char strValue[endIndex - startIndex + 1];
   subvectorBytes(message, startIndex, endIndex, strValue);
-  strValue[endIndex - startIndex + 1] = 0;
+  strValue[endIndex - startIndex] = 0;
 
   return convertBytesToFloat(strValue);
 }

@@ -207,7 +207,8 @@ int sendInputValue(sendDataFunc *sendData, int inputId, float value) {
 
 void setParams(char *message) {
 
-  char token[MESSAGE_TOKEN_LENGTH];
+  char token[MESSAGE_TOKEN_LENGTH + 1];
+  
   proccessRuleMessage(token, conditions, pinsId, typeIO, sampleTime, kp, ki, kd, setPoint, message);
 
 }
