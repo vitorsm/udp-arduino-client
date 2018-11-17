@@ -51,7 +51,7 @@ int getIndexInputById(int id);
 
 int verifyCondition(char operation, float conditionValue, float inputValue);
 
-void setParams(char *message);
+void setParams(char *token, char *message);
 
 void setInput(char *message);
 

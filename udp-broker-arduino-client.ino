@@ -15,6 +15,8 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 char brokerIp[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
+int showConected = 0;
+
 int connectionId = 0;
 long lastRequestBroker = 0;
 int lengthTextLcd = 0;
@@ -36,7 +38,7 @@ void setup() {
   lcd.begin(16, 2);
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Iniciando setup");
+  lcd.print(F("Iniciando setup"));
   
   for (int i = 0; i < 8; i++) {
     delay(100);  
@@ -56,10 +58,10 @@ void setup() {
 
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Iniciando setup");
+  lcd.print(F("Iniciando setup"));
 
   lcd.setCursor(0, 1);
-  lcd.print("Configurando ESP");
+  lcd.print(F("Configurando ESP"));
   
   setMultipleConnections(sendData);
   enableShowRemoteIp(sendData);
@@ -72,7 +74,7 @@ void setup() {
 
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Iniciando setup");
+  lcd.print(F("Iniciando setup"));
   
   for (int i = 0; i < 16; i++) {
     delay(300);  
@@ -85,7 +87,7 @@ void setup() {
   //startServer(sendData);
 
   //Serial.println("Digital Control Init");
-  //initDigitalControl();
+  initDigitalControl();
   lcd.setCursor(0,0);
   lcd.print(F("Terminou setup"));
   Serial.println(F("Terminou setup"));
@@ -99,16 +101,24 @@ void setup() {
   lcd.setCursor(0,1);
   lcd.print(WIFI_SSID);
 
+
+  serialPrintTxt = serialPrint;
+  printConstantsFunc = printConstantsMessage;
+  sendDataEsp = sendData;
+  printLCDTxtFunc = printLCD;
 }
 
 void loop() {
   
   String message = "";
-  
-  while (esp8266.available()) {
-    message += (char) esp8266.read();
-  }
 
+  for (int i = 0; i < 10; i++) {
+    while (esp8266.available()) {
+      message += (char) esp8266.read();
+    }
+//    delay(100);
+  }
+  
   if (message != "") {
     if (DEBUG == 1){
       Serial.print(F("tamanho comando: "));
@@ -123,7 +133,7 @@ void loop() {
     if (DEBUG == 1) {
       Serial.print(F("Vai passar uma mensagem para ser processada: "));
       Serial.println(strMessage);
-      Serial.println("---------------------------------------------------");
+      Serial.println(F("---------------------------------------------------"));
     }
     
     proccessReceivedData(sendData, strMessage, serialPrint, printConstantsMessage, printLCD);
@@ -133,15 +143,15 @@ void loop() {
   if (wifiConnected == 1) {
     if (sendingHello == 0) {
       sendingHello = 1;
-      printLCDText(F("Conectado"), 0);
-      printLCDText(F("modo controle"), 1);
+      printLCDText("Conectado", 0);
+      printLCDText("modo controle", 1);
     }
     // o módulo ainda não sabe quem é o broker
     if (brokerIpAddressFound == 0) {
       long curTime = millis();
       if (curTime - lastRequestBroker > TIME_REQUEST_HELLO) {
         lastRequestBroker = curTime;
-        printLCDText(F("Enviando hello"), 0);
+        printLCDText("Enviando hello", 0);
         sendHelloMessage(sendData, serialPrint, printLCD);
         showWait = 1;
       } else if (showWait == 1) {
@@ -149,6 +159,11 @@ void loop() {
         printLCDText("aguardando...", 1);
       }
     } else {
+      if (showConected == 0) {
+        showConected = 1;
+        printLCD(MESSAGE_BROKER_FOUND_1, 0);
+        printLCD(MESSAGE_BROKER_FOUND_2, 1);
+      }
       // enviar dados e tals
     }
   }
@@ -179,7 +194,7 @@ int sendData(char *command, const int timeout, int debug, int maxAttempts) {
         char c = esp8266.read(); // read the next character.
         response += c;
         if ((lastChar == 'O' || lastChar == 'o') && (c == 'K' || c == 'k')) {
-          Serial.println("encontrou ok");
+          Serial.println(F("encontrou ok"));
           okFound = 1;
           break;
         }
@@ -250,7 +265,7 @@ void serialPrint(char *msg, int isPrintln) {
   }
 }
 
-const int countMessages = 42;
+const int countMessages = 50;
 const int countColumnMessages = 75;
 
 const char MESSAGES[countMessages] [countColumnMessages] PROGMEM = {
@@ -295,7 +310,15 @@ const char MESSAGES[countMessages] [countColumnMessages] PROGMEM = {
   { "Mensagem recebid" }, //MESSAGE_INDEX_RECEIVED_MESSAGE 38
   { "de credenciais" }, //MESSAGE_INDEX_GET_CREDENTIALS_2 39
   { "nova tent em 3s" }, //MESSAGE_INDEX_NEW_ATTEMPT 40
-  { "Conectado" } //MESSAGE_INDEX_CONNECTED 41
+  { "Conectado" }, //MESSAGE_INDEX_CONNECTED 41
+  { "Parametros foram" }, //MESSAGE_BROKER_FOUND_1 42
+  { "obtidos" }, //MESSAGE_BROKER_FOUND_2 43
+  { "PinsId: " }, //MESSAGE_INDEX_PINS_ID 44
+  { "TypesIO: " }, //MESSAGE_INDEX_TYPES_IO 45
+  { "SampleTimes: " }, //MESSAGE_INDEX_SAMPLES_TIME 46
+  { "kp, ki, kd: " }, //MESSAGE_INDEX_K_PARAM 47
+  { "Setpoints: " }, //MESSAGE_INDEX_SETPOINT 48
+  { "Condition (id, value, operation): " }, //MESSAGE_INDEX_CONDITION 49
 };
 
 void printLCDText(char *text, int keepLastText) {

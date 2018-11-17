@@ -117,7 +117,7 @@ void proccessDataMessage(char *message, char *topic, float *value, char *strValu
 
   concatString("", receivedValue, strValue);
 	float floatValue = convertBytesToFloat(receivedValue);
-	*value = floatValue;  
+	*value = floatValue;
 }
 
 void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, char *typeIO, unsigned long *sampleTime, float *kp, float *ki, float *kd, float *setPoints, char *message) {
@@ -125,27 +125,27 @@ void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, c
   int indexMessage = 1; // a partir do 1 porque o 1 é o tipo de mensagem
 
   // Obtendo token
-  
-  char receivedToken[MESSAGE_TOKEN_LENGTH + 1];
-  clearString(receivedToken, MESSAGE_TOKEN_LENGTH + 1);
-  
-  subvectorBytes(message, indexMessage, indexMessage + MESSAGE_TOKEN_LENGTH, receivedToken);
+
+  //char receivedToken[MESSAGE_TOKEN_LENGTH + 1];
+  clearString(token, MESSAGE_TOKEN_LENGTH + 1);
+
+  subvectorBytes(message, indexMessage, indexMessage + MESSAGE_TOKEN_LENGTH, token);
 
   indexMessage += MESSAGE_TOKEN_LENGTH;
 
   // Obtendo ids
   for (int i = 0; i < PORTS_AMOUNT; i++) {
     int endValue = indexMessage + MESSAGE_INPUT_ID_LENGTH;
-    kp[i] = getSampleTime(indexMessage, endValue, message);
+    ids[i] = getSampleTime(indexMessage, endValue, message);
     indexMessage += MESSAGE_INPUT_ID_LENGTH;
   }
-  
+
   // Obtendo tipo do pino
   for (int i = 0; i < PORTS_AMOUNT; i++) {
     char c = message[indexMessage + i];
     typeIO[i] = c;
   }
-  
+
   indexMessage += PORTS_AMOUNT;
 
   // Obtendo kps
@@ -171,7 +171,7 @@ void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, c
   for (int i = 0; i < PORTS_AMOUNT; i++) {
     int endValue = indexMessage + MESSAGE_SAMPLE_LENGTH;
     sampleTime[i] = getSampleTime(indexMessage, endValue, message);
-    indexMessage += MESSAGE_SAMPLE_LENGTH; 
+    indexMessage += MESSAGE_SAMPLE_LENGTH;
   }
 
   // Obtendo set points
@@ -181,15 +181,6 @@ void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, c
     indexMessage += MESSAGE_VALUE_LENGTH;
   }
 
-  // int inputId; // 3 bytes
-  // char operation; // 1 byte
-  // float value; // 8 bytes
-
-//  #define MESSAGE_K_LENGTH 5
-//  #define MESSAGE_SAMPLE_LENGTH 6
-//  #define MESSAGE_INPUT_ID_LENGTH 3
-//  #define MESSAGE_VALUE_LENGTH 8
-
   struct Condition *condition;
   //Obtendo conditions
   for (int i = 0; i < PORTS_AMOUNT; i++) {
@@ -198,31 +189,31 @@ void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, c
 
     if (message[indexMessage] != EMPTY_CHAR) {
       int nextEmptyChar = getNextEmptyChar(message, indexMessage);
-      
+
       while (nextEmptyChar > indexMessage) {
         char strInputId[MESSAGE_INPUT_ID_LENGTH + 1];
         subvectorBytes(message, indexMessage, indexMessage + MESSAGE_INPUT_ID_LENGTH, strInputId);
         strInputId[MESSAGE_INPUT_ID_LENGTH] = 0;
-  
+
         indexMessage += MESSAGE_INPUT_ID_LENGTH;
-        
+
         char operationType = message[indexMessage];
         indexMessage += 1;
-  
+
         char strValue[MESSAGE_VALUE_LENGTH + 1];
         subvectorBytes(message, indexMessage, indexMessage + MESSAGE_VALUE_LENGTH, strValue);
         strValue[MESSAGE_VALUE_LENGTH] = 0;
-  
+
         indexMessage += MESSAGE_VALUE_LENGTH;
-        
+
         condition->inputId = convertBytesToInt(strInputId);
         condition->operation = operationType;
         condition->value = convertBytesToFloat(strValue);
         condition->next = malloc(sizeof(struct  Condition));
-  
+
         condition = condition->next;
         condition->inputId = -1;
-      }  
+      }
     } else {
       indexMessage++;
     }
@@ -231,7 +222,7 @@ void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, c
 
 int getNextEmptyChar(char *txt, int startIndex) {
   int len = strlen(txt);
-  
+
   for (int i = startIndex; i < len; i++) {
     char c = txt[i];
     if (c == EMPTY_CHAR)
@@ -241,17 +232,17 @@ int getNextEmptyChar(char *txt, int startIndex) {
   return -1;
 }
 
-int getNextConditionSeparator(char *txt, int startIndex) {
-    int len = strlen(txt);
-  
-  for (int i = startIndex; i < len; i++) {
-    char c = txt[i];
-    if (c == ';')
-      return i;
-  }
-
-  return -1;
-}
+//int getNextConditionSeparator(char *txt, int startIndex) {
+//    int len = strlen(txt);
+//  
+//  for (int i = startIndex; i < len; i++) {
+//    char c = txt[i];
+//    if (c == ';')
+//      return i;
+//  }
+//
+//  return -1;
+//}
 
 int getSampleTime(int startIndex, int endIndex, char *message) {
 
@@ -263,7 +254,7 @@ int getSampleTime(int startIndex, int endIndex, char *message) {
 }
 
 float getKParam(int startIndex, int endIndex, char *message) {
-  
+
   char strValue[endIndex - startIndex + 1];
   subvectorBytes(message, startIndex, endIndex, strValue);
   strValue[endIndex - startIndex] = 0;
@@ -271,13 +262,13 @@ float getKParam(int startIndex, int endIndex, char *message) {
   return convertBytesToFloat(strValue);
 }
 
-void addEmptyChar(char *str, int size) {
-	for (int i = 0; i < size; i++) {
-		if (str[i] == 0) {
-			str[i] = EMPTY_CHAR;
-		}
-	}
-}
+//void addEmptyChar(char *str, int size) {
+//	for (int i = 0; i < size; i++) {
+//		if (str[i] == 0) {
+//			str[i] = EMPTY_CHAR;
+//		}
+//	}
+//}
 
 void removeEmptyChar(char *str, int size) {
 	for (int i = 0; i < size; i++) {

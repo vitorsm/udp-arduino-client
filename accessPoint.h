@@ -8,14 +8,14 @@
 #ifndef ACCESSPOINT_H_
 #define ACCESSPOINT_H_
 
-#define WIFI_SSID "Nome rede"
+#define WIFI_SSID "Rede MC"
 #include "espUtils.h"
 #include "constants.h"
 
-typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
-typedef void (serialPrintFunc)(char *message, int isPrintln);
-typedef void (printLCDFunc)(int messageIndex, int keepLastText);
-typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
+//typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
+//typedef void (serialPrintFunc)(char *message, int isPrintln);
+//typedef void (printLCDFunc)(int messageIndex, int keepLastText);
+//typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
 
 int wifiConnected;
 

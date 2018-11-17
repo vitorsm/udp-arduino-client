@@ -207,10 +207,88 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
 
       clearString(brokerIpAddress, 16);
       concatString(brokerIpAddress, originIp, brokerIpAddress);
-      brokerIpAddressFound = 1;
+//      brokerIpAddressFound = 1;
 
-      setParams(message);
+      setParams(token, message);
 
+//      token, conditions, pinsId, typeIO, sampleTime, kp, ki, kd, setPoint, message
+
+      if (DEBUG == 1) {
+        serialPrint(token, 1);
+        printConstants(MESSAGE_INDEX_PINS_ID, 1);
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+           char strPinId[MESSAGE_INPUT_ID_LENGTH + 1];
+           convertIntToBytes(pinsId[i], strPinId, MESSAGE_INPUT_ID_LENGTH);
+           strPinId[MESSAGE_INPUT_ID_LENGTH] = 0;
+           serialPrint(strPinId, 1);
+        }
+
+        printConstants(MESSAGE_INDEX_TYPES_IO, 1);
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+           char typeIO[] = { typeIO[i], 0 };
+           serialPrint(typeIO, 1);
+        }
+
+        printConstants(MESSAGE_INDEX_SAMPLES_TIME, 1);
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+           char strSampleTime[MESSAGE_SAMPLE_LENGTH + 1];
+           convertIntToBytes(sampleTime[i], strSampleTime, MESSAGE_SAMPLE_LENGTH);
+           strSampleTime[MESSAGE_SAMPLE_LENGTH] = 0;
+           serialPrint(strSampleTime, 1);
+        }
+
+        printConstants(MESSAGE_INDEX_K_PARAM, 1);
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+           char strKp[MESSAGE_K_LENGTH + 1];
+           convertFloatToBytes(kp[i], strKp, MESSAGE_K_LENGTH);
+           strKp[MESSAGE_K_LENGTH] = 0;
+           serialPrint(strKp, 1);
+        }
+
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+           char strKi[MESSAGE_K_LENGTH + 1];
+           convertFloatToBytes(ki[i], strKi, MESSAGE_K_LENGTH);
+           strKi[MESSAGE_K_LENGTH] = 0;
+           serialPrint(strKi, 1);
+        }
+        
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+           char strKd[MESSAGE_K_LENGTH + 1];
+           convertFloatToBytes(kd[i], strKd, MESSAGE_K_LENGTH);
+           strKd[MESSAGE_K_LENGTH] = 0;
+           serialPrint(strKd, 1);
+        }        
+
+        printConstants(MESSAGE_INDEX_SETPOINT, 1);
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+           char strSample[MESSAGE_SAMPLE_LENGTH + 1];
+           convertIntToBytes(kd[i], strSample, MESSAGE_SAMPLE_LENGTH);
+           strSample[MESSAGE_SAMPLE_LENGTH] = 0;
+           serialPrint(strSample, 1);
+        }
+        
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+          struct Condition *c = conditions[i];
+          while (c->inputId >= 0) {
+            printConstants(MESSAGE_INDEX_CONDITION, 1);
+            
+            char strInputId[MESSAGE_INPUT_ID_LENGTH + 1];
+            convertIntToBytes(c->inputId, strInputId, MESSAGE_INPUT_ID_LENGTH);
+            strInputId[MESSAGE_INPUT_ID_LENGTH] = 0;
+            serialPrint(strInputId, 1);
+            
+            char valueStr[MESSAGE_VALUE_LENGTH + 1];
+            convertFloatToBytes(c->value, valueStr, MESSAGE_VALUE_LENGTH);
+            valueStr[MESSAGE_VALUE_LENGTH] = 0;
+            serialPrint(valueStr, 1);
+            
+            c = c->next;
+          }
+        }
+      }
+      
+      lastTimeChange[0] = 1;
+      
       break;
     case MESSAGE_TYPE_DATA:
       proccessDataMessage(message, topic, &value, strValue);

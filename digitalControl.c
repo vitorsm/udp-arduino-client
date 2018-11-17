@@ -195,20 +195,16 @@ int sendInputValues(sendDataFunc *sendData) {
 
 int sendInputValue(sendDataFunc *sendData, int inputId, float value) {
 
-  char topic[5];
-  char strValue[5];
+  char topic[MESSAGE_TOPIC_LENGTH + 1];
+  convertIntToBytes(inputId, topic, MESSAGE_TOPIC_LENGTH);
+  topic[MESSAGE_TOPIC_LENGTH] = 0;
 
-  convertIntToBytes(inputId, topic, 5);
-  convertFloatToBytes(value, strValue, 5);
-    
-///  buildMessagePublish(topic, char *token, float value, int isIntValue, char *message)
-  
+  sendPublishMessage(value, topic, sendData);  
 }
 
-void setParams(char *message) {
+void setParams(char *token, char *message) {
 
-  char token[MESSAGE_TOKEN_LENGTH + 1];
-  
+  clearString(token, MESSAGE_TOKEN_LENGTH);
   proccessRuleMessage(token, conditions, pinsId, typeIO, sampleTime, kp, ki, kd, setPoint, message);
 
 }

@@ -15,7 +15,8 @@
 
 typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 int brokerIpAddressFound;
-char brokerIpAddress[16];
+
+
 typedef void (serialPrintFunc)(char *message, int isPrintln);
 typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
 typedef void (printLCDFunc)(int messageIndex, int keepLastText);

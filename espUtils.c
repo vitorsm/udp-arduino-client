@@ -162,6 +162,16 @@ int listAPs(sendDataFunc *sendData) {
   
 }
 
+int sendPublishMessage(float value, char *topic, sendDataFunc *sendData) {
+  char message[MESSAGE_LENGTH];
+
+  buildMessagePublish(topic, token, value, 0, message);
+
+//  int response = sendMessage(sendData, message, brokerIpAddress, SERVER_PORT, printLCD, serialPrint);
+  int response = 1;
+  return response;
+}
+
 int sendHelloMessage(sendDataFunc *sendData, serialPrintFunc *serialPrint, printLCDFunc *printLCD) {
 
   char address[16];
@@ -219,6 +229,23 @@ void getNetworkAddress(sendDataFunc *sendData, char *address) {
 //  address[14] = '5';
 //  address[15] = 0;
 
+//  address[0] = '1';
+//  address[1] = '9';
+//  address[2] = '2';
+//  address[3] = '.';
+//  address[4] = '1';
+//  address[5] = '6';
+//  address[6] = '8';
+//  address[7] = '.';
+//  address[8] = '4';
+//  address[9] = '3';
+//  address[10] = '.';
+//  address[11] = '2';
+//  address[12] = '5';
+//  address[13] = '5';
+//  address[14] = 0;
+//  address[15] = 0;
+
   address[0] = '1';
   address[1] = '9';
   address[2] = '2';
@@ -227,13 +254,13 @@ void getNetworkAddress(sendDataFunc *sendData, char *address) {
   address[5] = '6';
   address[6] = '8';
   address[7] = '.';
-  address[8] = '4';
+  address[8] = '1';
   address[9] = '3';
-  address[10] = '.';
-  address[11] = '2';
-  address[12] = '5';
+  address[10] = '7';
+  address[11] = '.';
+  address[12] = '2';
   address[13] = '5';
-  address[14] = 0;
+  address[14] = '5';
   address[15] = 0;
 }
 

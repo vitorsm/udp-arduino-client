@@ -19,11 +19,13 @@
 
 char assetId[MESSAGE_ID_LENGTH];
 char password[MESSAGE_PASSWORD_LENGTH];
+char token[MESSAGE_TOKEN_LENGTH + 1];
+char brokerIpAddress[16];
 
-typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
-typedef void (serialPrintFunc)(char *message, int isPrintln);
-typedef void (printLCDFunc)(int messageIndex, int keepLastText);
-typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
+//typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
+//typedef void (serialPrintFunc)(char *message, int isPrintln);
+//typedef void (printLCDFunc)(int messageIndex, int keepLastText);
+//typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
 
 void moduleReset(sendDataFunc *sendData);
 
@@ -52,6 +54,8 @@ int stopTCPServer(sendDataFunc *sendData, int port);
 int listAPs(sendDataFunc *sendData);
 
 //Criar um arquivo para tratar de conversas com a rede de nos
+
+int sendPublishMessage(float value, char *topic, sendDataFunc *sendData);
 
 int sendHelloMessage(sendDataFunc *sendData, serialPrintFunc *serialPrint, printLCDFunc *printLCD);
 

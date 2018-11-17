@@ -32,6 +32,6 @@ int getSampleTime(int startIndex, int endIndex, char *message);
 
 int getNextEmptyChar(char *txt, int startIndex);
 
-int getNextConditionSeparator(char *txt, int startIndex);
+//int getNextConditionSeparator(char *txt, int startIndex);
 
 #endif /* MESSAGEUTILS_H_ */

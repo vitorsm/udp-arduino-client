@@ -24,6 +24,16 @@ struct Input {
 };
 
 
+typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
+typedef void (serialPrintFunc)(char *message, int isPrintln);
+typedef void (printLCDFunc)(int messageIndex, int keepLastText);
+typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
+
+serialPrintFunc *serialPrintTxt;
+printConstantsMessages *printConstantsFunc;
+sendDataFunc *sendDataEsp;
+printLCDFunc * printLCDTxtFunc;
+
 /***
  * Convert from integer value to byte array as a string
  */
