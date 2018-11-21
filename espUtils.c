@@ -8,13 +8,13 @@
 #include "espUtils.h"
 //#include "processEspData.h"
 
-void moduleReset(sendDataFunc *sendData) {
+void moduleReset() {
   
   sendData("AT+RST", DEFAULT_TIMEOUT * 2, DEBUG, MAXIMUM_ATTEMPTS);
   
 }
 
-int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
+int connectToWifi(char *ssid, char *password) {
   char *part1 = "AT+CWJAP=\"";
   char *part2 = "\",\"";
   char *part3 = "\"";
@@ -36,23 +36,23 @@ int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrin
   return response;
 }
 
-int setStationMode(sendDataFunc *sendData) {
+int setStationMode() {
   return sendData("AT+CWMODE_CUR=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
-int showLocalIpAddress(sendDataFunc *sendData) {
+int showLocalIpAddress() {
   return sendData("AT+CIFSR", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
-int setMultipleConnections(sendDataFunc *sendData) {
+int setMultipleConnections() {
   return sendData("AT+CIPMUX=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
-int enableShowRemoteIp(sendDataFunc *sendData) {
+int enableShowRemoteIp() {
   return sendData("AT+CIPDINFO=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
-int startServer(sendDataFunc *sendData) {
+int startServer() {
 
   char clientPortStr[] = {0, 0, 0, 0, 0, 0, 0, 0};
   convertIntToBytes(CLIENT_PORT, clientPortStr, 7);
@@ -73,7 +73,7 @@ int startServer(sendDataFunc *sendData) {
   return response;
 }
 
-int startAccessPoint(sendDataFunc *sendData, char *ssid) {
+int startAccessPoint(char *ssid) {
 
     char *part1 = "AT+CWSAP_CUR=\"";
     char *part2 = "\",\"senha\",";
@@ -109,9 +109,9 @@ int startAccessPoint(sendDataFunc *sendData, char *ssid) {
 }
 
 
-int stopAccessPoint(sendDataFunc *sendData) {
+int stopAccessPoint() {
   
-  int response = setStationMode(sendData);
+  int response = setStationMode();
   
   if (response == 1) {
     response = sendData("AT+CWQAP", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
@@ -121,7 +121,7 @@ int stopAccessPoint(sendDataFunc *sendData) {
 }
 
 
-int startTCPServer(sendDataFunc *sendData, int port) {
+int startTCPServer(int port) {
 //  char *part1 = "AT+CIPSERVER=1,";
 //
 //  int sizeStrPort = 7;
@@ -135,7 +135,7 @@ int startTCPServer(sendDataFunc *sendData, int port) {
   return sendData("AT+CIPSERVER=1", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 }
 
-int stopTCPServer(sendDataFunc *sendData, int port) {
+int stopTCPServer(int port) {
   char *part1 = "AT+CIPSERVER=0,";
 
   int sizeStrPort = 7;
@@ -155,27 +155,27 @@ int stopTCPServer(sendDataFunc *sendData, int port) {
   return response;
 }
 
-int listAPs(sendDataFunc *sendData) {
+int listAPs() {
   
   return sendData("AT+CWLAP", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
 //  return sendData("AT+CWLAP=,,,1,,", DEFAULT_TIMEOUT, DEBUG, MAXIMUM_ATTEMPTS);
   
 }
 
-int sendPublishMessage(float value, char *topic, sendDataFunc *sendData) {
+int sendPublishMessage(float value, char *topic) {
   char message[MESSAGE_LENGTH];
 
   buildMessagePublish(topic, token, value, 0, message);
 
-//  int response = sendMessage(sendData, message, brokerIpAddress, SERVER_PORT, printLCD, serialPrint);
-  int response = 1;
+  int response = sendMessage(message, brokerIpAddress, SERVER_PORT);
+//  int response = 1;
   return response;
 }
 
-int sendHelloMessage(sendDataFunc *sendData, serialPrintFunc *serialPrint, printLCDFunc *printLCD) {
+int sendHelloMessage() {
 
   char address[16];
-  getNetworkAddress(sendData, address);
+  getNetworkAddress(address);
 
   if (DEBUG == 1) {
     serialPrint(address, 1);
@@ -186,7 +186,7 @@ int sendHelloMessage(sendDataFunc *sendData, serialPrintFunc *serialPrint, print
   char message[MESSAGE_LENGTH];
   buildHelloMassage(assetId, password, message);
   
-  int response = sendMessage(sendData, message, address, SERVER_PORT, printLCD, serialPrint);
+  int response = sendMessage(message, address, SERVER_PORT);
   
 //  free(address);
 //  free(message);
@@ -194,8 +194,8 @@ int sendHelloMessage(sendDataFunc *sendData, serialPrintFunc *serialPrint, print
   return response;
 }
 
-int sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port, printLCDFunc *printLCD, serialPrintFunc *serialPrint) {
-  int response = prepareToSendUdpMessage(sendData, ipAddress, port, strlen(message), printLCD, serialPrint);
+int sendMessage(char *message, char *ipAddress, int port) {
+  int response = prepareToSendUdpMessage(ipAddress, port, strlen(message));
   char c = response + 48;
   char responseStr[] = { 'r', 'e', 's', ':', ' ', c, 0};
   
@@ -205,13 +205,13 @@ int sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port
   if (!response) {
     printLCD(MESSAGE_INDEX_ERROR, 0);
     printLCD(MESSAGE_INDEX_NEW_ATTEMPT, 1);
-    return sendMessage(sendData, message, ipAddress, port, printLCD, serialPrint);
+    return sendMessage(message, ipAddress, port);
   }
  
   return response;
 }
 
-void getNetworkAddress(sendDataFunc *sendData, char *address) {
+void getNetworkAddress(char *address) {
 //  address[0] = '1';
 //  address[1] = '9';
 //  address[2] = '2';
@@ -286,7 +286,7 @@ void setCredentials(char *_assetId, char *_password) {
 }
 
 
-int prepareToSendUdpMessage(sendDataFunc *sendData, char *addressIp, int port, int messageSize, printLCDFunc *printLCD, serialPrintFunc *serialPrint) {
+int prepareToSendUdpMessage(char *addressIp, int port, int messageSize) {
   char *part1 = "AT+CIPSEND=0,"; //length
   char *part2 = ",\"";
   char *part3 = "\",";

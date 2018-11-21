@@ -253,7 +253,6 @@ void convertFloatToBytes(float value, char *charValue, int numbersOfBytes) {
 	if (isNegative == 1) {
 		charValue[0] = '-';
 	}
-	printf("valor: %s", charValue);
 }
 
 int compareBytes(char *value1, char *value2, int size) {

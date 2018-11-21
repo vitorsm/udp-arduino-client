@@ -10,7 +10,8 @@
 #include <LiquidCrystal.h>
 
 //Define os pinos que serão utilizados para ligação ao display
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+// era 12, 11, 5, 4, 3, 2 mudei para 8, 9, 5, 4, 3, 2
+LiquidCrystal lcd(8, 9, 5, 4, 3, 2);
 
 
 char brokerIp[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -24,15 +25,24 @@ int sendingHello = 0;
 
 int showWait = 0;
 
-SoftwareSerial esp8266(8, 9);
+// era 8 e 9, mudei para 7 e 6
+SoftwareSerial esp8266(7, 6);
 
 void setup() {
+  
+  
+  serialPrint = serialPrintText;
+  printConstants = printConstantsMessage;
+  sendData = sendDataEsp;
+  printLCD = printLCDConstant;
+  updateTypeIO = updateTypeIOArduino;
+  
   wifiConnected = 0;
   
   Serial.begin(9600);
   esp8266.begin(19200);
   
-  moduleReset(sendData);
+  moduleReset();
   //connectToWifi(sendData, "2.4Ghz Virtua 302", "3207473600");
 
   lcd.begin(16, 2);
@@ -55,7 +65,7 @@ void setup() {
     lcd.print(".");
   }
   Serial.println(".");
-
+  
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("Iniciando setup"));
@@ -63,14 +73,14 @@ void setup() {
   lcd.setCursor(0, 1);
   lcd.print(F("Configurando ESP"));
   
-  setMultipleConnections(sendData);
-  enableShowRemoteIp(sendData);
+  setMultipleConnections();
+  enableShowRemoteIp();
   //setStationMode(sendData);
   
   //startServer(sendData);
   
-  startAccessPointConfig(sendData);
-  showLocalIpAddress(sendData);
+  startAccessPointConfig();
+  showLocalIpAddress();
 
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -101,23 +111,18 @@ void setup() {
   lcd.setCursor(0,1);
   lcd.print(WIFI_SSID);
 
-
-  serialPrintTxt = serialPrint;
-  printConstantsFunc = printConstantsMessage;
-  sendDataEsp = sendData;
-  printLCDTxtFunc = printLCD;
 }
 
 void loop() {
   
   String message = "";
 
-  for (int i = 0; i < 10; i++) {
+//  for (int i = 0; i < 10; i++) {
     while (esp8266.available()) {
       message += (char) esp8266.read();
     }
 //    delay(100);
-  }
+//  }
   
   if (message != "") {
     if (DEBUG == 1){
@@ -136,7 +141,7 @@ void loop() {
       Serial.println(F("---------------------------------------------------"));
     }
     
-    proccessReceivedData(sendData, strMessage, serialPrint, printConstantsMessage, printLCD);
+    proccessReceivedData(strMessage);
   }
 
   // o módulo já está conectado a uma rede wifi
@@ -152,7 +157,7 @@ void loop() {
       if (curTime - lastRequestBroker > TIME_REQUEST_HELLO) {
         lastRequestBroker = curTime;
         printLCDText("Enviando hello", 0);
-        sendHelloMessage(sendData, serialPrint, printLCD);
+        sendHelloMessage();
         showWait = 1;
       } else if (showWait == 1) {
         showWait = 0;
@@ -161,16 +166,18 @@ void loop() {
     } else {
       if (showConected == 0) {
         showConected = 1;
-        printLCD(MESSAGE_BROKER_FOUND_1, 0);
-        printLCD(MESSAGE_BROKER_FOUND_2, 1);
+        printLCDConstant(MESSAGE_BROKER_FOUND_1, 0);
+        printLCDConstant(MESSAGE_BROKER_FOUND_2, 1);
       }
       // enviar dados e tals
+      readInputs();
+      doControl();
     }
   }
   
 }
 
-int sendData(char *command, const int timeout, int debug, int maxAttempts) {
+int sendDataEsp(char *command, const int timeout, int debug, int maxAttempts) {
   
   int okCommand = 0;
   int attempts = 0;
@@ -257,7 +264,7 @@ void convertStringToChar(String str, char *charStr) {
   charStr[strLength] = 0;
 }
 
-void serialPrint(char *msg, int isPrintln) {
+void serialPrintText(char *msg, int isPrintln) {
   if (isPrintln == 1) {
     Serial.println(msg);
   } else {
@@ -265,7 +272,7 @@ void serialPrint(char *msg, int isPrintln) {
   }
 }
 
-const int countMessages = 50;
+const int countMessages = 51;
 const int countColumnMessages = 75;
 
 const char MESSAGES[countMessages] [countColumnMessages] PROGMEM = {
@@ -319,6 +326,7 @@ const char MESSAGES[countMessages] [countColumnMessages] PROGMEM = {
   { "kp, ki, kd: " }, //MESSAGE_INDEX_K_PARAM 47
   { "Setpoints: " }, //MESSAGE_INDEX_SETPOINT 48
   { "Condition (id, value, operation): " }, //MESSAGE_INDEX_CONDITION 49
+  { "Entradas (id, value, local): " }, //MESSAGE_INDEX_INPUTS 50
 };
 
 void printLCDText(char *text, int keepLastText) {
@@ -354,7 +362,7 @@ void printLCDText(char *text, int keepLastText) {
   lcd.print(text);
 }
 
-void printLCD(int messageIndex, int keepLastText) {
+void printLCDConstant(int messageIndex, int keepLastText) {
 
  char text[countColumnMessages];
   if (messageIndex >= countColumnMessages) {
@@ -380,8 +388,97 @@ void printConstantsMessage(int messageIndex, int isPrintln) {
   } else {
     Serial.print(text);
   }
-
-//  lcd.clear();
-//  lcd.setCursor(0, 0);
-//  lcd.print(text);
 }
+
+void updateTypeIOArduino(int *types) {
+  for (int i = 0; i < PORTS_AMOUNT; i++) {
+    if (types[i] == 1) {
+      pinMode(pinIndexControl[i], types[i]);
+      Serial.print("Pino ");
+      Serial.print(pinIndexControl[i]);
+      Serial.println(" setado como saida");
+    }
+//    pinMode(pinIndexControl[i], types[i]);
+  }
+}
+
+void doControl() {
+
+
+  int pinsValue[PORTS_AMOUNT];
+  
+  digitalControl(pinsValue);
+
+  for (int i = 0; i < PORTS_AMOUNT; i++) {
+    int inputIndex = getIndexInputById(inputsId[i]);
+    float valueInput = -1;
+    if (inputIndex >= 0 && inputIndex < MAX_AMOUNT_INPUT) {
+      valueInput = inputs[inputIndex]->value;
+    }
+    
+    Serial.print(F("valor-saida ("));
+    Serial.print(i);
+    Serial.print(F("): "));
+    Serial.print(pinsValue[i]);
+    Serial.print(F(" | pino: "));
+    Serial.print(pinIndexControl[i]);
+    Serial.print(F(" | setpoint: "));
+    Serial.print(setPoint[i]);
+    Serial.print(F(" | typeIO: "));
+    Serial.print(typeIO[i]);
+    Serial.print(F(" | inputIndex: "));
+    Serial.print(inputIndex);
+    Serial.print(F(" | inputValue: "));
+    Serial.print(valueInput);
+    Serial.print(F(" | time: "));
+    Serial.println(millis());
+
+    if (typeIO[i] == '2') {
+      analogWrite(pinIndexControl[i], pinsValue[i] / 4);
+    } else if (typeIO[i] == '3') {
+      if (pinsValue[i] > 0) {
+        digitalWrite(pinIndexControl[i], HIGH);
+      } else if (pinsValue[i] == 0) {
+        digitalWrite(pinIndexControl[i], LOW);
+      }
+    }
+    
+  }
+
+  
+}
+
+
+void readInputs() {
+  int values[PORTS_AMOUNT];
+
+  for (int i = 0; i < PORTS_AMOUNT; i++) {
+    if (typeIO[i] == '1') {
+      values[i] = analogRead(pinIndexControl[i]);
+
+//      if (i == 0) {
+//        analogWrite(13, values[i] / 4);
+//      }
+//      values[i] = analogRead(A0);
+      Serial.print(i);
+      Serial.print(" (");
+      Serial.print(pinIndexControl[i]);
+      Serial.print("): ");
+      Serial.println(values[i]);
+    }
+  }
+
+  updateInputValues(values);
+
+//  for (int i = 0; i < MAX_AMOUNT_INPUT; i++) {
+//    if (inputs[i]->id > 0) {
+//      Serial.print("id: ");
+//      Serial.print(inputs[i]->id);
+//      Serial.print(" | value: ");
+//      Serial.print(inputs[i]->value);
+//      Serial.print(" | localPin: ");
+//      Serial.println(inputs[i]->localPin);
+//    }
+//  }
+}
+

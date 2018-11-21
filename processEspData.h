@@ -13,20 +13,14 @@
 #include "accessPoint.h"
 #include "digitalControl.h"
 
-typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
 int brokerIpAddressFound;
 
-
-typedef void (serialPrintFunc)(char *message, int isPrintln);
-typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
-typedef void (printLCDFunc)(int messageIndex, int keepLastText);
-
-void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD);
-void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, char *ipAddress, int *port, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
-void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD);
-void getBrokerIpAddress(char *ipAddress, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
+void proccessReceivedData(char *data);
+void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, char *ipAddress, int *port);
+void proccessReceivedMessage(char *message, char *originIp, int originPort);
+void getBrokerIpAddress(char *ipAddress);
 //int getStartsMessage(char *message);
-void getMessageBounds(char *message, int *startType, int *endsType, int *startMessage, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
+void getMessageBounds(char *message, int *startType, int *endsType, int *startMessage);
 
 
 #endif /* PROCESSESPDATA_H_ */

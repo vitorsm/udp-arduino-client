@@ -21,6 +21,7 @@ struct Condition {
 struct Input {
   int id;
   float value;
+  int localPin;
 };
 
 
@@ -28,11 +29,13 @@ typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxA
 typedef void (serialPrintFunc)(char *message, int isPrintln);
 typedef void (printLCDFunc)(int messageIndex, int keepLastText);
 typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
+typedef void (updateTypeIOFunc)(int *types);
 
-serialPrintFunc *serialPrintTxt;
-printConstantsMessages *printConstantsFunc;
-sendDataFunc *sendDataEsp;
-printLCDFunc * printLCDTxtFunc;
+serialPrintFunc *serialPrint;
+printConstantsMessages *printConstants;
+sendDataFunc *sendData;
+printLCDFunc * printLCD;
+updateTypeIOFunc *updateTypeIO;
 
 /***
  * Convert from integer value to byte array as a string

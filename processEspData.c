@@ -7,13 +7,13 @@
 
 #include "processEspData.h"
 
-void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD) {
+void proccessReceivedData(char *data) {
 
   int startMessage = 0;
   int startType = 0;
   int endsType = 0;
   
-  getMessageBounds(data, &startType, &endsType, &startMessage, serialPrint, printConstants);
+  getMessageBounds(data, &startType, &endsType, &startMessage);
   
   //int startMessage = getStartsMessage(data);
   //printLCD(MESSAGE_INDEX_RECEIVED_MESSAGE, 0);
@@ -68,7 +68,7 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
     
     if (compareBytes("+CWLAP1", type, 5) == 1) {
       printConstants(MESSAGE_INDEX_WIFI_LIST, 1);
-      processResponseListAPs(sendData, data);
+      processResponseListAPs(data);
     } else if (compareBytes("+IPD", type, 4) == 1) {
       
       int connectionId = 0;
@@ -76,7 +76,7 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
       char ipAddress[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
       int port = 0;
       
-      getDataFromReceivedData(data, &connectionId, &messageLength, ipAddress, &port, serialPrint, printConstants);
+      getDataFromReceivedData(data, &connectionId, &messageLength, ipAddress, &port);
 
       if (DEBUG == 1) {
           //printar os dados recebidos
@@ -84,23 +84,29 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
           serialPrint(ipAddress, 1);
           char strPort[7];
           clearString(strPort, 7);
-          convertIntToBytes(port, strPort, 7);
+          convertIntToBytes(messageLength, strPort, 7);
+          strPort[6] = 0;
           
           printConstants(MESSAGE_INDEX_PORT, 0);
           serialPrint(strPort, 1);
       }
 
       if (startMessage >= 0) {
-        char message[messageLength + 1];
-        subvectorBytes(data, startMessage, startMessage + messageLength, message);
-        message[messageLength] = 0;
-
-        if (DEBUG == 1) {
-          printConstants(MESSAGE_INDEX_GET_THIS, 1);
-          serialPrint(message, 1);
+        int dataLength = strlen(data);
+        int dif = dataLength - startMessage;
+        
+        if (dif == messageLength) {
+          char message[messageLength + 1];
+          subvectorBytes(data, startMessage, startMessage + messageLength, message);
+          message[messageLength] = 0;
+  
+          if (DEBUG == 1) {
+            printConstants(MESSAGE_INDEX_GET_THIS, 1);
+            serialPrint(message, 1);
+          }
+  
+          proccessReceivedMessage(message, ipAddress, port);
         }
-
-        proccessReceivedMessage(sendData, message, ipAddress, port, serialPrint, printConstants, printLCD);
       }
 
     } else if (DEBUG == 1) {
@@ -111,7 +117,7 @@ void proccessReceivedData(sendDataFunc *sendData, char *data, serialPrintFunc *s
   
 }
 
-void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, char *ipAddress, int *port, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
+void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, char *ipAddress, int *port) {
 
   int dataLength = strlen(data);
 
@@ -162,7 +168,7 @@ void getDataFromReceivedData(char *data, int *connectionId, int *messageLength, 
   serialPrint(portStrTeste, 0);
 }
 
-void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *originIp, int originPort, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD) {
+void proccessReceivedMessage(char *message, char *originIp, int originPort) {
 
   serialPrint(message, 1);
   
@@ -207,11 +213,9 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
 
       clearString(brokerIpAddress, 16);
       concatString(brokerIpAddress, originIp, brokerIpAddress);
-//      brokerIpAddressFound = 1;
+      brokerIpAddressFound = 1;
 
       setParams(token, message);
-
-//      token, conditions, pinsId, typeIO, sampleTime, kp, ki, kd, setPoint, message
 
       if (DEBUG == 1) {
         serialPrint(token, 1);
@@ -225,8 +229,8 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
 
         printConstants(MESSAGE_INDEX_TYPES_IO, 1);
         for (int i = 0; i < PORTS_AMOUNT; i++) {
-           char typeIO[] = { typeIO[i], 0 };
-           serialPrint(typeIO, 1);
+           char typeIOStr[] = { typeIO[i], 0 };
+           serialPrint(typeIOStr, 1);
         }
 
         printConstants(MESSAGE_INDEX_SAMPLES_TIME, 1);
@@ -261,10 +265,37 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
 
         printConstants(MESSAGE_INDEX_SETPOINT, 1);
         for (int i = 0; i < PORTS_AMOUNT; i++) {
-           char strSample[MESSAGE_SAMPLE_LENGTH + 1];
-           convertIntToBytes(kd[i], strSample, MESSAGE_SAMPLE_LENGTH);
-           strSample[MESSAGE_SAMPLE_LENGTH] = 0;
-           serialPrint(strSample, 1);
+           char strSetpoint[MESSAGE_VALUE_LENGTH + 1];
+           convertFloatToBytes(setPoint[i], strSetpoint, MESSAGE_VALUE_LENGTH);
+           strSetpoint[MESSAGE_VALUE_LENGTH] = 0;
+           serialPrint(strSetpoint, 1);
+        }
+
+        printConstants(MESSAGE_INDEX_INPUTS, 1);
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+           char strInputId[MESSAGE_INPUT_ID_LENGTH + 1];
+           convertFloatToBytes(inputsId[i], strInputId, MESSAGE_INPUT_ID_LENGTH);
+           strInputId[MESSAGE_INPUT_ID_LENGTH] = 0;
+           serialPrint(strInputId, 1);
+        }
+
+        
+        for (int i = 0; i < PORTS_AMOUNT; i++) {
+
+           if (inputs[i]->id > 0) {
+             char strInputId[MESSAGE_INPUT_ID_LENGTH + 1];
+             convertIntToBytes(inputs[i]->id, strInputId, MESSAGE_INPUT_ID_LENGTH);
+             strInputId[MESSAGE_INPUT_ID_LENGTH] = 0;
+             serialPrint(strInputId, 1);
+
+             char strValue[MESSAGE_VALUE_LENGTH + 1];
+             convertFloatToBytes(inputs[i]->value, strValue, MESSAGE_VALUE_LENGTH);
+             strValue[MESSAGE_VALUE_LENGTH] = 0;
+             serialPrint(strValue, 1);
+
+             char strLocal[] = { inputs[i]->localPin, 0 };
+             serialPrint(strLocal, 1);
+           }
         }
         
         for (int i = 0; i < PORTS_AMOUNT; i++) {
@@ -281,6 +312,9 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
             convertFloatToBytes(c->value, valueStr, MESSAGE_VALUE_LENGTH);
             valueStr[MESSAGE_VALUE_LENGTH] = 0;
             serialPrint(valueStr, 1);
+
+            char operationStr[] = { c->operation, 0 };
+            serialPrint(operationStr, 1);
             
             c = c->next;
           }
@@ -328,7 +362,7 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
     case MESSAGE_TYPE_NETWORKS:
       if (DEBUG == 1) {
         printConstants(MESSAGE_INDEX_NETWORK_MESSAGE_RECEIVED, 1);
-        processWifiConfig(sendData, message, serialPrint, printConstants, printLCD);
+        processWifiConfig(message);
       }
       break;
     case MESSAGE_TYPE_CREDENTIALS_REQUEST:
@@ -350,7 +384,7 @@ void proccessReceivedMessage(sendDataFunc *sendData, char *message, char *origin
 
 }
 
-void getBrokerIpAddress(char *ipAddress, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
+void getBrokerIpAddress(char *ipAddress) {
   if (brokerIpAddressFound == 1) {
     clearString(ipAddress, 16);
     concatString("", brokerIpAddress, ipAddress);
@@ -360,7 +394,7 @@ void getBrokerIpAddress(char *ipAddress, serialPrintFunc *serialPrint, printCons
 }
 
 
-void getMessageBounds(char *message, int *startType, int *endsType, int *startMessage, serialPrintFunc *serialPrint, printConstantsMessages *printConstants) {
+void getMessageBounds(char *message, int *startType, int *endsType, int *startMessage) {
 
   int strLength = strlen(message);
 

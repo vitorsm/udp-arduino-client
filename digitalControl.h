@@ -12,26 +12,23 @@
 #include "constants.h"
 #include "messageUtils.h"
 
-typedef void (serialPrintFunc)(char *message, int isPrintln);
-typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
-typedef void (printLCDFunc)(int messageIndex, int keepLastText);
-typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
-
 unsigned long lastTimeChange[PORTS_AMOUNT];
 float setPoint[PORTS_AMOUNT];
 //float input[PORTS_AMOUNT];
 struct Input *inputs[MAX_AMOUNT_INPUT];
-int inputIndexControl[PORTS_AMOUNT];
+int inputsId[PORTS_AMOUNT];
+int pinIndexControl[PORTS_AMOUNT];
 float iIncrement[PORTS_AMOUNT];
 float lastInput[PORTS_AMOUNT];
 float kp[PORTS_AMOUNT];
 float ki[PORTS_AMOUNT];
 float kd[PORTS_AMOUNT];
-char typeIO[PORTS_AMOUNT]; //byte: 0: input, 1: PID_output, 2: binary_output, 3: pulse_output
-unsigned long sampleTime[PORTS_AMOUNT];
+char typeIO[PORTS_AMOUNT]; //byte: 1: input, 2: PID_output, 3: binary_output,
+int sampleTime[PORTS_AMOUNT];
 struct Condition *conditions[PORTS_AMOUNT];
 int pinsId[PORTS_AMOUNT];
-
+int outMax;
+int outMin;
 unsigned long lastTimeSendInputs[PORTS_AMOUNT];
 
 
@@ -41,7 +38,7 @@ void setTunnings(float _kp, float _ki, float _kd, int portNumber);
 
 void updateInputValue(int id, float value);
 
-void digitalControl(float *ports);
+void digitalControl(int *values);
 
 float computePID(int portNumber);
 
@@ -55,8 +52,8 @@ void setParams(char *token, char *message);
 
 void setInput(char *message);
 
-int sendInputValues(sendDataFunc *sendData);
+int updateInputValues(int *values);
 
-int sendInputValue(sendDataFunc *sendData, int inputId, float value);
+int sendInputValue(int inputId, float value);
 
 #endif /* DIGITALCONTROL_H_ */

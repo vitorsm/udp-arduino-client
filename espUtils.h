@@ -22,48 +22,43 @@ char password[MESSAGE_PASSWORD_LENGTH];
 char token[MESSAGE_TOKEN_LENGTH + 1];
 char brokerIpAddress[16];
 
-//typedef int (sendDataFunc)(char *command, const int timeout, int debug, int maxAttempts);
-//typedef void (serialPrintFunc)(char *message, int isPrintln);
-//typedef void (printLCDFunc)(int messageIndex, int keepLastText);
-//typedef void (printConstantsMessages)(int messageIndex, int isPrintln);
+void moduleReset();
 
-void moduleReset(sendDataFunc *sendData);
+int connectToWifi(char *ssid, char *password);
 
-int connectToWifi(sendDataFunc *sendData, char *ssid, char *password, serialPrintFunc *serialPrint, printConstantsMessages *printConstants);
+int setStationMode();
 
-int setStationMode(sendDataFunc *sendData);
+int showLocalIpAddress();
 
-int showLocalIpAddress(sendDataFunc *sendData);
+int setMultipleConnections();
 
-int setMultipleConnections(sendDataFunc *sendData);
+int enableShowRemoteIp();
 
-int enableShowRemoteIp(sendDataFunc *sendData);
+int startServer();
 
-int startServer(sendDataFunc *sendData);
+void getNetworkAddress(char *address);
 
-void getNetworkAddress(sendDataFunc *sendData, char *address);
+int startAccessPoint(char *ssid);
 
-int startAccessPoint(sendDataFunc *sendData, char *ssid);
+int stopAccessPoint();
 
-int stopAccessPoint(sendDataFunc *sendData);
+int startTCPServer(int port);
 
-int startTCPServer(sendDataFunc *sendData, int port);
+int stopTCPServer(int port);
 
-int stopTCPServer(sendDataFunc *sendData, int port);
-
-int listAPs(sendDataFunc *sendData);
+int listAPs();
 
 //Criar um arquivo para tratar de conversas com a rede de nos
 
-int sendPublishMessage(float value, char *topic, sendDataFunc *sendData);
+int sendPublishMessage(float value, char *topic);
 
-int sendHelloMessage(sendDataFunc *sendData, serialPrintFunc *serialPrint, printLCDFunc *printLCD);
+int sendHelloMessage();
 
-int sendMessage(sendDataFunc *sendData, char *message, char *ipAddress, int port, printLCDFunc *printLCD, serialPrintFunc *serialPrint);
+int sendMessage(char *message, char *ipAddress, int port);
 
 void setCredentials(char *assetId, char *password);
 
-int prepareToSendUdpMessage(sendDataFunc *sendData, char *addressIp, int port, int messageSize, printLCDFunc *printLCD, serialPrintFunc *serialPrint);
+int prepareToSendUdpMessage(char *addressIp, int port, int messageSize);
 
 
 #endif /* ESPUTILS_H_ */

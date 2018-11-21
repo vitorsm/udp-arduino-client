@@ -21,7 +21,7 @@ int getMessageType(char *message);
 
 void proccessDataMessage(char *message, char *topic, float *value, char *strValue);
 
-void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, char *typeIO, unsigned long *sampleTime, float *kp, float *ki, float *kd, float *setPoints, char *message);
+void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, char *typeIO, int *sampleTime, float *kp, float *ki, float *kd, float *setPoints, int *inputsId, char *message);
 
 void removeEmptyChar(char *str, int size);
 

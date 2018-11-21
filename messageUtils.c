@@ -120,7 +120,7 @@ void proccessDataMessage(char *message, char *topic, float *value, char *strValu
 	*value = floatValue;
 }
 
-void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, char *typeIO, unsigned long *sampleTime, float *kp, float *ki, float *kd, float *setPoints, char *message) {
+void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, char *typeIO, int *sampleTime, float *kp, float *ki, float *kd, float *setPoints, int *inputsId, char *message) {
 
   int indexMessage = 1; // a partir do 1 porque o 1 é o tipo de mensagem
 
@@ -174,11 +174,18 @@ void proccessRuleMessage(char *token, struct Condition **conditions, int *ids, c
     indexMessage += MESSAGE_SAMPLE_LENGTH;
   }
 
-  // Obtendo set points
+  // Obtendo setpoints
   for (int i = 0; i < PORTS_AMOUNT; i++) {
     int endValue = indexMessage + MESSAGE_VALUE_LENGTH;
     setPoints[i] = getKParam(indexMessage, endValue, message);
     indexMessage += MESSAGE_VALUE_LENGTH;
+  }
+
+  // Obtendo inputs id
+  for (int i = 0; i < PORTS_AMOUNT; i++) {
+    int endValue = indexMessage + MESSAGE_INPUT_ID_LENGTH;
+    inputsId[i] = getSampleTime(indexMessage, endValue, message);
+    indexMessage += MESSAGE_INPUT_ID_LENGTH;
   }
 
   struct Condition *condition;
@@ -249,7 +256,7 @@ int getSampleTime(int startIndex, int endIndex, char *message) {
   char strValue[endIndex - startIndex + 1];
   subvectorBytes(message, startIndex, endIndex, strValue);
   strValue[endIndex - startIndex] = 0;
-
+  
   return convertBytesToInt(strValue);
 }
 

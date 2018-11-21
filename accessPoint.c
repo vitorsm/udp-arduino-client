@@ -7,37 +7,37 @@
 
 #include "accessPoint.h"
 
-void startAccessPointConfig(sendDataFunc *sendData) {
+void startAccessPointConfig() {
 
-  startAccessPoint(sendData, WIFI_SSID);
-  startServerConfig(sendData);
+  startAccessPoint(WIFI_SSID);
+  startServerConfig();
   
 }
 
-void stopAccessPointConfig(sendDataFunc *sendData) {
+void stopAccessPointConfig() {
   
-  stopAccessPoint(sendData);
+  stopAccessPoint();
   
 }
 
-void startServerConfig(sendDataFunc *sendData) {
+void startServerConfig() {
 
 //  startTCPServer(sendData, CLIENT_PORT);
-  startServer(sendData);
+  startServer();
   
 }
 
-void stopServerConfig(sendDataFunc *sendData) {
+void stopServerConfig() {
 
-  stopTCPServer(sendData, CLIENT_PORT);
+  stopTCPServer(CLIENT_PORT);
   
 }
 
-void processRequestNetworks(sendDataFunc *sendData) {
-  listAPs(sendData); 
+void processRequestNetworks() {
+  listAPs(); 
 }
 
-void processResponseListAPs(sendDataFunc *sendData, char *command) {
+void processResponseListAPs(char *command) {
   int commandSize = strlen(command);
 
   // colocar aqui um tratamento de string para mandar a lista de redes wifi disponiveis
@@ -47,7 +47,7 @@ void processResponseListAPs(sendDataFunc *sendData, char *command) {
   // implementar o build message networks information
 }
 
-void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD) {
+void processWifiConfig(char *command) {
 
   int commandSize = strlen(command);
 
@@ -71,7 +71,7 @@ void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *s
     serialPrint(command, 1);
   }
   
-  getDataWifiConfig(command, ssid, netMacAddress, passwordWifi, id, password, serialPrint, printConstants, printLCD);
+  getDataWifiConfig(command, ssid, netMacAddress, passwordWifi, id, password);
 
   if (DEBUG == 1) {
     printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_SSID, 0);
@@ -90,24 +90,24 @@ void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *s
     serialPrint(password, 1);
   }
   
-  int response = stopTCPServer(sendData, CLIENT_PORT);
+  int response = stopTCPServer(CLIENT_PORT);
   serialPrint("1", 1);
   // analisar se é possível testar as credenciais de uma rede sem deixar de ser AP
 
   if (response == 1) {
-    response = stopAccessPoint(sendData);
+    response = stopAccessPoint();
   }
 
   serialPrint("2", 1);
   
   if (response == 1) {
-    response = connectToWifi(sendData, ssid, passwordWifi, serialPrint, printConstants);
+    response = connectToWifi(ssid, passwordWifi);
   }
 
   serialPrint("3", 1);
   
   if (response == 1) {
-    response = startServer(sendData);
+    response = startServer();
   }
 
   serialPrint("4", 1);
@@ -123,7 +123,7 @@ void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *s
       printLCD(MESSAGE_INDEX_NEW_ATTEMPT, 1);
 
       delay(3000);
-      processWifiConfig(sendData, command, serialPrint, printConstants, printLCD);
+      processWifiConfig(command);
     }
   } else {
     serialPrint("bom", 1);
@@ -132,7 +132,7 @@ void processWifiConfig(sendDataFunc *sendData, char *command, serialPrintFunc *s
   }
 }
 
-void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password, serialPrintFunc *serialPrint, printConstantsMessages *printConstants, printLCDFunc *printLCD) {
+void getDataWifiConfig(char *command, char *ssid, char *netMacAddress, char *passwordWifi, char *id, char *password) {
   int emptyCharCount = 0;
   
   printLCD(MESSAGE_INDEX_GET_CREDENTIALS_1, 0);
