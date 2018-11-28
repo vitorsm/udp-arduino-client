@@ -56,4 +56,5 @@ int updateInputValues(int *values);
 
 int sendInputValue(int inputId, float value);
 
+
 #endif /* DIGITALCONTROL_H_ */

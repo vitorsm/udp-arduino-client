@@ -95,25 +95,37 @@ int getMessageType(char *message) {
 
 void proccessDataMessage(char *message, char *topic, float *value, char *strValue) {
 
-	char receivedToken[MESSAGE_TOKEN_LENGTH];
-	char receivedTopic[MESSAGE_TOPIC_LENGTH];
-	char receivedValue[MESSAGE_BODY_CONTENT_LENGTH];
+	//char receivedToken[MESSAGE_TOKEN_LENGTH + 1];
+	//char receivedTopic[MESSAGE_TOPIC_LENGTH + 1];
+  //char receivedTopic[MESSAGE_INPUT_ID_LENGTH + 1];
+	char receivedValue[MESSAGE_VALUE_LENGTH + 1];
 
-	subvectorBytes(message, 1, 1 + MESSAGE_TOKEN_LENGTH, receivedToken);
-	subvectorBytes(message, MESSAGE_HEADER_LENGTH, MESSAGE_HEADER_LENGTH + MESSAGE_TOPIC_LENGTH, receivedTopic);
-	subvectorBytes(message, MESSAGE_HEADER_LENGTH + MESSAGE_TOPIC_LENGTH, MESSAGE_LENGTH, receivedValue);
-
-	for (int i = 0; i < MESSAGE_TOPIC_LENGTH; i++) {
-		if (receivedTopic[i] == EMPTY_CHAR) {
-			topic[i] = 0;
-		} else {
-			topic[i] = receivedTopic[i];
-		}
-	}
-
-	//remove empty char
-	removeEmptyChar(receivedToken, MESSAGE_TOKEN_LENGTH);
-	removeEmptyChar(receivedValue, MESSAGE_BODY_CONTENT_LENGTH);
+  int index = 1;
+  
+	//subvectorBytes(message, index, index + MESSAGE_TOKEN_LENGTH, receivedToken);
+  //index += MESSAGE_TOKEN_LENGTH;
+  //receivedToken[MESSAGE_TOKEN_LENGTH] = 0;
+  
+	subvectorBytes(message, index, index + MESSAGE_INPUT_ID_LENGTH, topic);
+  index += MESSAGE_INPUT_ID_LENGTH;
+  topic[MESSAGE_INPUT_ID_LENGTH] = 0;
+  
+	subvectorBytes(message, index, index + MESSAGE_VALUE_LENGTH, receivedValue);
+  index += MESSAGE_VALUE_LENGTH;
+  receivedValue[MESSAGE_VALUE_LENGTH] = 0;
+  
+  
+//	for (int i = 0; i < MESSAGE_INPUT_ID_LENGTH; i++) {
+//		if (receivedTopic[i] == EMPTY_CHAR) {
+//			topic[i] = 0;
+//		} else {
+//			topic[i] = receivedTopic[i];
+//		}
+//	}
+  
+  
+	//removeEmptyChar(receivedToken, 1);
+	removeEmptyChar(receivedValue, 9);
 
   concatString("", receivedValue, strValue);
 	float floatValue = convertBytesToFloat(receivedValue);

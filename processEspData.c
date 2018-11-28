@@ -186,11 +186,12 @@ void proccessReceivedMessage(char *message, char *originIp, int originPort) {
   int messageType = convertBytesToInt(strMessageType);
 
   serialPrint(message, 1);
-  char topic[MESSAGE_BODY_LENGTH - MESSAGE_TOKEN_LENGTH + 1]; // case MESSAGE_TYPE_DATA:
-
+  char topic[MESSAGE_TOPIC_LENGTH + 1]; // case MESSAGE_TYPE_DATA:
+  char topicPublish[] = {MESSAGE_INPUT_ID_LENGTH + 1};
 
   float value = 12; //case MESSAGE_TYPE_DATA:
   char strValue[15]; //case MESSAGE_TYPE_DATA:
+  int inputId = 0;
   
   serialPrint(message, 1);
   if (DEBUG == 1) {
@@ -325,18 +326,27 @@ void proccessReceivedMessage(char *message, char *originIp, int originPort) {
       
       break;
     case MESSAGE_TYPE_DATA:
-      proccessDataMessage(message, topic, &value, strValue);
-      topic[MESSAGE_TOKEN_LENGTH] = 0;
+      clearString(topicPublish, MESSAGE_INPUT_ID_LENGTH);
+      proccessDataMessage(message, topicPublish, &value, strValue);
+      //topic[MESSAGE_TOPIC_LENGTH] = 0;
 
+      
+      inputId = convertBytesToInt(topicPublish);
+      
+      
       if (DEBUG == 1) {
+        if (inputId > 1){
+          printConstants(MESSAGE_INDEX_PROCESS_WIFI_CONFIG_SSID, 1);
+        }
         printConstants(MESSAGE_INDEX_MESSAGE_TYPE, 1);
         printConstants(MESSAGE_INDEX_VALUE, 0);
         serialPrint(strValue, 1);
 
         printConstants(MESSAGE_INDEX_RECEIVED_TOPIC, 0);
-        serialPrint(topic, 1);
+        serialPrint(topicPublish, 1);
       }
-      
+
+      updateInputValue(inputId, value);
       break;
     case MESSAGE_TYPE_PUBLISH:
       if (DEBUG == 1) {
